@@ -6,6 +6,7 @@
   --yellow-color: #FFCF6D;
   --light-blue-color: #7ABFFF;
   --sky-blue-color: #ACD6FD;
+  --light-green-color: #77ED91;
 }
 
 * {
@@ -86,4 +87,29 @@ svg {
 
 svg:hover {
   cursor: pointer;
+}
+
+button {
+  background-color: transparent;
+  border: 2px transparent solid;
+  border-radius: 100px;
+  color: #000;
+}
+
+button * {
+  font-weight: 800;
+  padding-left: 3px;
+  padding-right: 3px;
+}
+
+button:hover {
+  cursor: pointer
+}
+
+::placeholder {
+  text-align: center;
+}
+
+.btn-dark {
+  border-color: #000;
 }

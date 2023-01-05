@@ -5,6 +5,7 @@ import { Context } from './utils/context';
 // Custom components
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
+import EmailPage from './components/EmailPage';
 
 import {
   BrowserRouter, 
@@ -23,6 +24,7 @@ function App() {
               <Navbar/>
               <Routes>
                 <Route path='/home'/>
+                <Route path='/email' element={<EmailPage/>}/>
               </Routes>
             </div>
           </BrowserRouter>

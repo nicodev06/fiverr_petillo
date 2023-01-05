@@ -128,6 +128,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STATICFILES_DIRS = [(BASE_DIR / 'frontend/build/static')]
 
+CSRF_TRUSTED_ORIGINS = ['http://localhost:3000']
+
 # CORS CONFIGURATION
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [

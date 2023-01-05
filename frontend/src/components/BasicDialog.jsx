@@ -7,12 +7,13 @@ const BasicDialog = ({ Activator, children }) => {
     function handleClose(){
         setOpen(false)
     }
+
     
     return (
         <>
-            <Activator handleClick={() => { setOpen(true)}}/>
+            <Activator handleClick={() => {setOpen(true)}}/>
             <Dialog open={open} onClose={handleClose}>
-                {children}
+                {React.cloneElement(children, {handleClose})}
             </Dialog>
         </>
     )

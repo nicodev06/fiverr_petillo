@@ -3,16 +3,6 @@ import { useState, useEffect, createContext } from 'react';
 export const Context = createContext()
 
 export const MainContext = ({ children }) => {
-
-    function getCurrentWorkspace(workspaces){
-      if (window.localStorage.getItem("currentWorkspace") === null){
-        window.localStorage.setItem("currentWorkspace", String(workspaces[0].id))
-        console.log(window.localStorage.getItem("currentWorkspace"))
-        return workspaces[0].id
-      } else {
-        return workspaces.find((item) => item.id === +window.localStorage.getItem("currentWorkspace")).id
-      }
-    }
     
     const [currentUser, setCurrentUser] = useState(null);
     const [workspaces, setWorkspaces] = useState(null);
@@ -22,7 +12,7 @@ export const MainContext = ({ children }) => {
         method: "GET",
         credentials: 'include',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
       })
         .then((response) => {
@@ -40,6 +30,7 @@ export const MainContext = ({ children }) => {
         <Context.Provider value={{
           currentUser,
           workspaces,
+          setWorkspaces
         }}>
             { children }
         </Context.Provider>
