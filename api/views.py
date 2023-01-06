@@ -1,9 +1,11 @@
 import imaplib
+import smtplib
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import generics
+from rest_framework.decorators import api_view
 
 from django.http import Http404
 
@@ -73,3 +75,24 @@ class CreateGmailSenderAPIView(APIView):
             serializer.save(workspace=workspace)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.error, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(["POST"])
+def imapAuthenticationAPIView(request):
+    try:
+        mail = imaplib.IMAP4_SSL(request.data["host"])
+        mail.login(request.data["email"], request.data["password"])
+        return Response({"message": "Correctly authenticated to IMAP host"}, status=status.HTTP_200_OK)
+    except imaplib.IMAP4.error:
+            return Response({"error": "Invalid Credentials"}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(["POST"])
+def smtpAuthenticationAPIView(request):
+    try:
+        smtp_server = smtplib.SMTP(request.data["host"], request.data["port"])
+        smtp_server.starttls()
+        smtp_server.login(request.data["email"], request.data["password"])
+        return Response({"message": "Correctly authenticated"}, status=status.HTTP_200_OK)
+    except smtplib.SMTPAuthenticationError:
+        return Response({"error": "Invalid Credentials"}, status=status.HTTP_400_BAD_REQUEST)
+
+    

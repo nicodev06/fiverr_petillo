@@ -5,7 +5,7 @@ import { Context } from './utils/context';
 // Custom components
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
-import EmailPage from './components/EmailPage';
+import EmailPage from './components/features/email/EmailPage';
 
 import {
   BrowserRouter, 
