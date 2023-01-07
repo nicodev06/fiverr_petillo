@@ -10,9 +10,9 @@ from rest_framework.decorators import api_view
 from django.http import Http404
 
 from django.contrib.auth.models import AnonymousUser
-from .serializers import UserSerializer, WorkspaceSerializer, GmailSenderSerializer
+from .serializers import UserSerializer, WorkspaceSerializer, GmailSenderSerializer, GenericSenderSerializer
 
-from core.models import GmailSender, Workspace
+from core.models import GmailSender, GenericSender, Workspace
 
 class getCurrentUser(APIView):
 
@@ -95,4 +95,12 @@ def smtpAuthenticationAPIView(request):
     except smtplib.SMTPAuthenticationError:
         return Response({"error": "Invalid Credentials"}, status=status.HTTP_400_BAD_REQUEST)
 
-    
+
+class CreateGenericSenderAPIView(generics.ListCreateAPIView):
+
+    queryset = GenericSender.objects.all()
+    serializer_class = GenericSenderSerializer
+
+    def perform_create(self, serializer):
+        current_workspace = Workspace.objects.get(user=self.request.user, is_active=True)
+        serializer.save(workspace=current_workspace)

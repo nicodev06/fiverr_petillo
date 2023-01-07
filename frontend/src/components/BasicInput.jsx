@@ -3,7 +3,7 @@ import React from 'react'
 import Box from '@mui/material/Box';
 import InputBase from '@mui/material/InputBase';
 
-const BasicInput = ({ placeholder, type, onChange }) => {
+const BasicInput = ({ placeholder, type, onChange, value, required }) => {
   return (
     <Box
     sx={{display: 'flex', alignItems: 'center', justifyContent: 'center', flex: '1'}}
@@ -13,6 +13,8 @@ const BasicInput = ({ placeholder, type, onChange }) => {
         placeholder={placeholder}
         inputProps={{ 'type': type }}
         onChange={onChange}
+        value={value}
+        required={required}
         />
     </Box>
   )

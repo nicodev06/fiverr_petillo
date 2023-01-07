@@ -55,7 +55,7 @@ const GmailWorkFlowInfo = ({handleClose, setCurrentStep}) => {
     )
 }
 
-const GmailWorkFlowForm = ({setCurrentStep}) => {
+const GmailWorkFlowForm = ({setCurrentStep, handleClose}) => {
 
     const [firstName, setFirstName] = useState(null);
     const [lastName, setLastName] = useState(null);
@@ -87,6 +87,7 @@ const GmailWorkFlowForm = ({setCurrentStep}) => {
                     setShowSnackBar(true);
                     setMessage("Account created succesfully!");
                     setSeverity("success");
+                    handleClose();
                 } else {
                     setShowSnackBar(true);
                     setMessage("Invalid credentials");
@@ -194,7 +195,7 @@ export default ({ handleClose }) => {
                 </Box>
             </Box>
             {currentStep === 1 && <GmailWorkFlowInfo handleClose={handleClose} setCurrentStep={setCurrentStep}/>}
-            {currentStep === 2 && <GmailWorkFlowForm setCurrentStep={setCurrentStep}/>}
+            {currentStep === 2 && <GmailWorkFlowForm setCurrentStep={setCurrentStep} handleClose={handleClose}/>}
         </Box>
     )
 }

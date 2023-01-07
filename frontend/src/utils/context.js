@@ -6,6 +6,9 @@ export const MainContext = ({ children }) => {
     
     const [currentUser, setCurrentUser] = useState(null);
     const [workspaces, setWorkspaces] = useState(null);
+    const [showSnackBar, setShowSnackBar] = useState(false);
+    const [message, setMessage] = useState("");
+    const [severity, setSeverity] = useState("");
 
     function fetchFromAPI(path, setter){
       fetch(`${process.env.REACT_APP_API_URL}${path}`, {
@@ -30,7 +33,13 @@ export const MainContext = ({ children }) => {
         <Context.Provider value={{
           currentUser,
           workspaces,
-          setWorkspaces
+          setWorkspaces,
+          showSnackBar,
+          severity,
+          message,
+          setShowSnackBar,
+          setSeverity,
+          setMessage
         }}>
             { children }
         </Context.Provider>

@@ -25,4 +25,5 @@ class GenericSenderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = GenericSender
+        fields = "__all__"
         read_only_fields = ["workspace"]

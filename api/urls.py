@@ -4,7 +4,8 @@ from .views import (getCurrentUser,
                     toggleWorkspaceAPIView, 
                     CreateGmailSenderAPIView,
                     imapAuthenticationAPIView,
-                    smtpAuthenticationAPIView
+                    smtpAuthenticationAPIView,
+                    CreateGenericSenderAPIView
                     )
 
 urlpatterns = [
@@ -13,5 +14,6 @@ urlpatterns = [
     path('toggle_workspace/<int:pk>/', toggleWorkspaceAPIView.as_view(), name="toggle workspace"),
     path('gmail_sender/', CreateGmailSenderAPIView.as_view(), name="create gmail sender"),
     path('imap_auth/', imapAuthenticationAPIView, name="imap authentication"),
-    path('smtp_auth/', smtpAuthenticationAPIView, name="smtp authentication")
+    path('smtp_auth/', smtpAuthenticationAPIView, name="smtp authentication"),
+    path('generic_sender/', CreateGenericSenderAPIView.as_view(), name="create generic sender")
 ]
