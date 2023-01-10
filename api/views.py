@@ -1,5 +1,6 @@
 import imaplib
 import smtplib
+from math import ceil
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -10,9 +11,11 @@ from rest_framework.decorators import api_view
 from django.http import Http404
 
 from django.contrib.auth.models import AnonymousUser
-from .serializers import UserSerializer, WorkspaceSerializer, GmailSenderSerializer, GenericSenderSerializer
+from .serializers import UserSerializer, WorkspaceSerializer, GenericSenderSerializer
 
-from core.models import GmailSender, GenericSender, Workspace
+from core.models import GenericSender, Workspace
+
+from .utils import verification, EmailPagination
 
 class getCurrentUser(APIView):
 
@@ -56,23 +59,18 @@ class toggleWorkspaceAPIView(APIView):
 
 class CreateGmailSenderAPIView(APIView):
 
-    def get(self, request, format=None):
-        workspace = Workspace.objects.get(user=request.user, is_active=True)
-        email_senders = GmailSender.objects.filter(workspace=workspace)
-        serializer = GmailSenderSerializer(email_senders, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
     def post(self, request, format=None):
         # Connection to gmail server
         try:
             mail = imaplib.IMAP4_SSL("imap.gmail.com")
-            mail.login(request.data["email"], request.data["password"])
+            mail.login(request.data["email"], request.data["imap_password"])
         except imaplib.IMAP4.error as error:
             return Response({"error": error.__str__()}, status=status.HTTP_400_BAD_REQUEST)
-        serializer = GmailSenderSerializer(data=request.data)
+        serializer = GenericSenderSerializer(data=request.data)
         if serializer.is_valid():
             workspace = Workspace.objects.get(user=request.user, is_active=True)
-            serializer.save(workspace=workspace)
+            verification_report = verification("gmail.com", serializer.validated_data["email"], "smtp.gmail.com", "imap.gmail.com", serializer.validated_data["smtp_password"], serializer.validated_data["imap_password"])
+            serializer.save(workspace=workspace, spf=verification_report["spf"], dmarc=verification_report["dmarc"], dkim=verification_report["dkim"], active=True)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.error, status=status.HTTP_400_BAD_REQUEST)
 
@@ -95,12 +93,37 @@ def smtpAuthenticationAPIView(request):
     except smtplib.SMTPAuthenticationError:
         return Response({"error": "Invalid Credentials"}, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(["GET"])
+def email_pages_count(request):
+    workspace = Workspace.objects.get(user=request.user, is_active=True)
+    senders_count = GenericSender.objects.filter(workspace=workspace).count()
+    page_count = ceil(senders_count / 4)
+    return Response({"pages": page_count}, status=status.HTTP_200_OK)
+
+@api_view(["GET"])
+def email_senders_count(request):
+    workspace = Workspace.objects.get(user=request.user, is_active=True)
+    senders_count = GenericSender.objects.filter(workspace=workspace).count()
+    return Response({"senders": senders_count}, status=status.HTTP_200_OK)
 
 class CreateGenericSenderAPIView(generics.ListCreateAPIView):
 
     queryset = GenericSender.objects.all()
     serializer_class = GenericSenderSerializer
+    pagination_class = EmailPagination
 
     def perform_create(self, serializer):
         current_workspace = Workspace.objects.get(user=self.request.user, is_active=True)
-        serializer.save(workspace=current_workspace)
+        domain = serializer.validated_data["email"].split("@")[1]
+        verification_report = verification(domain, serializer.validated_data["email"], serializer.validated_data["smtp_host"], serializer.validated_data["imap_host"], serializer.validated_data["smtp_password"], serializer.validated_data["imap_password"])
+        serializer.save(workspace=current_workspace, spf=verification_report["spf"], dmarc=verification_report["dmarc"], dkim=verification_report["dkim"], active=True)
+    
+    def get_queryset(self):
+        workspace = Workspace.objects.get(is_active=True);
+        return GenericSender.objects.filter(workspace=workspace).order_by("-id");
+    
+
+class UpdateDestroyGenericSenderAPIView(generics.RetrieveUpdateDestroyAPIView):
+
+    queryset = GenericSender.objects.all()
+    serializer_class = GenericSenderSerializer

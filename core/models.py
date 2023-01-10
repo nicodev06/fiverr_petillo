@@ -10,20 +10,6 @@ class Workspace(models.Model):
     def __str__(self):
         return self.name
 
-class GmailSender(models.Model):
-
-    first_name = models.CharField(max_length=248, null=True, blank=True, default="")
-    last_name = models.CharField(max_length=248, null=True, blank=True, default="")
-    email = models.EmailField()
-    workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE, related_name="gmail_senders")
-    password = models.CharField(max_length=16)
-    daily_campaign = models.IntegerField()
-    sending_limits = models.IntegerField()
-
-
-    def __str__(self):
-        return self.email
-
 class GenericSender(models.Model):
     first_name = models.CharField(max_length=248, null=True, blank=True, default="")
     last_name = models.CharField(max_length=248, null=True, blank=True, default="")
@@ -35,6 +21,12 @@ class GenericSender(models.Model):
     smtp_password = models.CharField(max_length=248)
     smtp_host = models.CharField(max_length=248)
     reply_to = models.EmailField(null=True, blank=True, default="")
+    daily_campaign = models.IntegerField(null=True, blank=True, default=0)
+    sending_limits = models.IntegerField(null=True, blank=True, default=0)
+    spf = models.BooleanField(null=True, blank=True, default=False)
+    dkim = models.BooleanField(null=True, blank=True, default=False)
+    dmarc = models.BooleanField(null=True, blank=True, default=False)
+    active = models.BooleanField(default=True)
     workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE, related_name="generic_senders", default=0)
 
     def __str__(self):

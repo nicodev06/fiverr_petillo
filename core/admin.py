@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Workspace, GmailSender
+from .models import Workspace, GenericSender
 
 admin.site.register(Workspace)
-admin.site.register(GmailSender)
+admin.site.register(GenericSender)

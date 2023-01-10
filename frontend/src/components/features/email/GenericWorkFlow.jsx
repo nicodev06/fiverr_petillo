@@ -94,7 +94,7 @@ export const Buttons = ({back, next}) => {
 
 const GenericWorflowFirstStep = ({handleClose, setCurrentStep}) => {
 
-    const {firstName, lastName, email, setFirstName, setLastName, setEmail} = useContext(GenericWorkflowContext)
+    const {firstName, lastName, email, setFirstName, setLastName, setEmail} = useContext(GenericWorkflowContext);
     
     function nextStep(){
         if (email.length > 0){
@@ -227,9 +227,12 @@ const GenericWorflowSecondStep = ({ setCurrentStep }) => {
 const GenericWorflowThirdStep = ({ setCurrentStep, handleClose }) => {
 
     const {firstName, lastName, email, imapUsername, imapPassword, imapHost, imapPort, smtpUsername, smtpPassword, smtpHost, smtpPort, replyTo, setSmtpUsername, setSmtpPassword, setSmtpHost, setSmtpPort, setReplyTo} = useContext(GenericWorkflowContext);
-    const {setShowSnackBar, setMessage, setSeverity} = useContext(Context);
+    const {setShowSnackBar, setMessage, setSeverity, setSenders, fetchFromAPI, emailCurrentPage} = useContext(Context);
 
     function createSender(){
+        setSeverity("info");
+        setMessage("Creating sender...");
+        setShowSnackBar(true);
         fetch(`${process.env.REACT_APP_API_URL}/api/generic_sender/`, {
             method: 'POST',
             credentials: 'include',
@@ -247,7 +250,9 @@ const GenericWorflowThirdStep = ({ setCurrentStep, handleClose }) => {
                 smtp_username: smtpUsername,
                 smtp_password: smtpPassword,
                 smtp_host: smtpHost,
-                reply_to: replyTo
+                reply_to: replyTo,
+                daily_campaign: 0,
+                sending_limits: 0
             })
         })
             .then((response) => {
@@ -255,7 +260,8 @@ const GenericWorflowThirdStep = ({ setCurrentStep, handleClose }) => {
                     setSeverity("success");
                     setMessage("Email sender successfully created");
                     setShowSnackBar(true);
-                    handleClose()
+                    fetchFromAPI(`/api/generic_sender/?page=${emailCurrentPage}`, setSenders);
+                    handleClose();
                 } else {
                     setSeverity("warning");
                     setMessage("Something went wrong");

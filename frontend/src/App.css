@@ -113,3 +113,11 @@ button:hover {
 .btn-dark {
   border-color: #000;
 }
+
+.pagination {
+  border-radius: 100px;
+}
+
+.pagination > * {
+  background-color: var(--sky-blue-color);
+}

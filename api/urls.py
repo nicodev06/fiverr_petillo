@@ -5,7 +5,10 @@ from .views import (getCurrentUser,
                     CreateGmailSenderAPIView,
                     imapAuthenticationAPIView,
                     smtpAuthenticationAPIView,
-                    CreateGenericSenderAPIView
+                    CreateGenericSenderAPIView,
+                    email_pages_count,
+                    email_senders_count,
+                    UpdateDestroyGenericSenderAPIView
                     )
 
 urlpatterns = [
@@ -15,5 +18,8 @@ urlpatterns = [
     path('gmail_sender/', CreateGmailSenderAPIView.as_view(), name="create gmail sender"),
     path('imap_auth/', imapAuthenticationAPIView, name="imap authentication"),
     path('smtp_auth/', smtpAuthenticationAPIView, name="smtp authentication"),
-    path('generic_sender/', CreateGenericSenderAPIView.as_view(), name="create generic sender")
+    path('generic_sender/', CreateGenericSenderAPIView.as_view(), name="create generic sender"),
+    path('email_pages/',email_pages_count , name="email pages count"),
+    path('email_senders/', email_senders_count, name="email senders count"),
+    path('toggle_sender/<int:pk>/', UpdateDestroyGenericSenderAPIView.as_view(), name="toggle sender")
 ]

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -11,6 +11,8 @@ import BasicInput from '../../BasicInput';
 import { Buttons } from './GenericWorkFlow';
 
 import GmailIcon from '../../../assets/gmail.svg';
+
+import { Context } from '../../../utils/context';
 
 
 const GmailWorkFlowInfo = ({handleClose, setCurrentStep}) => {
@@ -65,8 +67,13 @@ const GmailWorkFlowForm = ({setCurrentStep, handleClose}) => {
     const [message, setMessage] = useState("");
     const [severity, setSeverity] = useState("")
 
+    const {fetchFromAPI, setSenders, emailCurrentPage, setEmailSendersCount, emailSendersCount} = useContext(Context);
+
     function createSender(){
         if (email.length > 0 && password.length > 0){
+            setSeverity("info");
+            setMessage("Creating sender...");
+            setShowSnackBar(true);
             fetch(`${process.env.REACT_APP_API_URL}/api/gmail_sender/`, {
                 method: 'POST',
                 credentials: 'include',
@@ -78,7 +85,12 @@ const GmailWorkFlowForm = ({setCurrentStep, handleClose}) => {
                     first_name: firstName,
                     last_name: lastName,
                     email,
-                    password,
+                    imap_username: email,
+                    imap_password: password,
+                    imap_host: 'imap.gmail.com',
+                    smtp_username: email,
+                    smtp_password: password,
+                    smtp_host: 'smtp.gmail.com',
                     daily_campaign: 0,
                     sending_limits: 0
                 })
@@ -87,6 +99,8 @@ const GmailWorkFlowForm = ({setCurrentStep, handleClose}) => {
                     setShowSnackBar(true);
                     setMessage("Account created succesfully!");
                     setSeverity("success");
+                    setEmailSendersCount({'senders': emailSendersCount.senders - 1});
+                    fetchFromAPI(`/api/generic_sender/?page=${emailCurrentPage}`, setSenders);
                     handleClose();
                 } else {
                     setShowSnackBar(true);
@@ -150,7 +164,7 @@ const GmailWorkFlowForm = ({setCurrentStep, handleClose}) => {
                             <p><span>{'<'}</span> Back</p>
                         </button>
                         <button style={{backgroundColor: 'var(--light-green-color)'}} onClick={createSender}>
-                            <p>Connect</p>
+                            <p>+ Connect</p>
                         </button>
                     </Box>
                 </Box>

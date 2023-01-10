@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from core.models import GmailSender, GenericSender, Workspace
+from core.models import GenericSender, Workspace
 
 
 class UserSerializer(serializers.Serializer):
@@ -14,16 +14,10 @@ class WorkspaceSerializer(serializers.ModelSerializer):
         fields = ["id", "name", "user", "is_active"]
         read_only_fields = ["user"]
 
-class GmailSenderSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = GmailSender
-        fields = ["id", "first_name", "last_name", "email", "password", "workspace", "daily_campaign", "sending_limits"]
-        read_only_fields = ["workspace"]
 
 class GenericSenderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = GenericSender
         fields = "__all__"
-        read_only_fields = ["workspace"]
+        read_only_fields = ["workspace", "spf", "dkim", "dmarc"]

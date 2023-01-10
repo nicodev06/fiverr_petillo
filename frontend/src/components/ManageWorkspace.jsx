@@ -113,7 +113,7 @@ const AddWorkspace = ({ handleClose }) => {
 
 const ManageWorkSpace = () => {
   
-  const { workspaces, setWorkspaces } = useContext(Context);
+  const { workspaces, setWorkspaces, setSenders, setEmailCurrentPage, fetchFromAPI } = useContext(Context);
 
   function toggleWorkspace(workspace){
     if (!workspace.is_active){
@@ -127,7 +127,11 @@ const ManageWorkSpace = () => {
         body: JSON.stringify({...workspace, is_active:true})
       }).then((response) => {
         response.json()
-          .then((data) => {setWorkspaces(data)})
+          .then((data) => {
+            setWorkspaces(data);
+            setEmailCurrentPage(1);
+            fetchFromAPI('/api/generic_sender/?page=1', setSenders);
+          })
       })
     }
   }

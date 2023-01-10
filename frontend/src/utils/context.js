@@ -9,6 +9,10 @@ export const MainContext = ({ children }) => {
     const [showSnackBar, setShowSnackBar] = useState(false);
     const [message, setMessage] = useState("");
     const [severity, setSeverity] = useState("");
+    const [senders, setSenders] = useState([]);
+    const [emailPages, setEmailPages] = useState(1);
+    const [emailSendersCount, setEmailSendersCount] = useState(0);
+    const [emailCurrentPage, setEmailCurrentPage] = useState(1);
 
     function fetchFromAPI(path, setter){
       fetch(`${process.env.REACT_APP_API_URL}${path}`, {
@@ -27,7 +31,14 @@ export const MainContext = ({ children }) => {
     useEffect(() => {
       fetchFromAPI('/api/current_user/', setCurrentUser);
       fetchFromAPI('/api/workspaces/', setWorkspaces);
+      fetchFromAPI('/api/email_pages/', setEmailPages);
+      fetchFromAPI('/api/email_senders/', setEmailSendersCount);
     },[])
+
+    useEffect(() => {
+      fetchFromAPI(`/api/generic_sender/?page=${emailCurrentPage}`, setSenders);
+    }, [emailCurrentPage])
+
 
     return (
         <Context.Provider value={{
@@ -39,7 +50,15 @@ export const MainContext = ({ children }) => {
           message,
           setShowSnackBar,
           setSeverity,
-          setMessage
+          setMessage,
+          senders,
+          setSenders,
+          fetchFromAPI,
+          emailPages,
+          emailSendersCount,
+          emailCurrentPage,
+          setEmailCurrentPage,
+          setEmailSendersCount
         }}>
             { children }
         </Context.Provider>
