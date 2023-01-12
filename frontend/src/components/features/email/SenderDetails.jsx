@@ -10,7 +10,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import CreateOutlinedIcon from '@mui/icons-material/CreateOutlined';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 
-import SendOutlinedIcon from '@mui/icons-material/SendOutlined';
+import SendRoundedIcon from '@mui/icons-material/SendRounded';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 
 import BasicDialog from '../../BasicDialog';
@@ -297,7 +297,8 @@ const SenderDetails = ({ sender }) => {
         py: '10px',
         my: '15px',
         borderRadius: '0 0 5px 5px',
-        boxShadow: '1px 1px var(--light-gray-color)'
+        boxShadow: '1px 1px var(--light-gray-color)',
+        backgroundColor: '#F6FBFF'
     }}
     >
         <Grid container spacing={6}>
@@ -314,7 +315,7 @@ const SenderDetails = ({ sender }) => {
                     alignItems: 'center'
                 }}
                 >
-                    <SendOutlinedIcon sx={{pr: '5px', transform: 'rotate(300deg)'}}/>
+                    <SendRoundedIcon sx={{pr: '5px', transform: 'rotate(300deg)'}}/>
                     <Typography sx={{fontSize: '0.8rem', color: 'var(--sky-blue-color)'}}>1200/1499</Typography>
                 </Box>
             </Grid>

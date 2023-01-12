@@ -13,6 +13,8 @@ export const MainContext = ({ children }) => {
     const [emailPages, setEmailPages] = useState(1);
     const [emailSendersCount, setEmailSendersCount] = useState(0);
     const [emailCurrentPage, setEmailCurrentPage] = useState(1);
+    const [campaigns, setCampaigns] = useState([]);
+    const [campaignsCurrentPage, setCampaignsCurrentPage] = useState(1);
 
     function fetchFromAPI(path, setter){
       fetch(`${process.env.REACT_APP_API_URL}${path}`, {
@@ -37,7 +39,11 @@ export const MainContext = ({ children }) => {
 
     useEffect(() => {
       fetchFromAPI(`/api/generic_sender/?page=${emailCurrentPage}`, setSenders);
-    }, [emailCurrentPage])
+    }, [emailCurrentPage]);
+
+    useEffect(() => {
+      fetchFromAPI(`/api/campaigns/?page=${campaignsCurrentPage}`, setCampaigns)
+    }, [campaignsCurrentPage]);
 
 
     return (
@@ -58,7 +64,11 @@ export const MainContext = ({ children }) => {
           emailSendersCount,
           emailCurrentPage,
           setEmailCurrentPage,
-          setEmailSendersCount
+          setEmailSendersCount,
+          campaigns,
+          setCampaigns,
+          campaignsCurrentPage,
+          setCampaignsCurrentPage
         }}>
             { children }
         </Context.Provider>

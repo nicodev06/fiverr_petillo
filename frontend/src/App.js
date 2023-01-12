@@ -6,6 +6,7 @@ import { Context } from './utils/context';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
 import EmailPage from './components/features/email/EmailPage';
+import CampaignPage from './components/features/campaigns/CampaignPage';
 
 import {
   BrowserRouter, 
@@ -25,6 +26,7 @@ function App() {
               <Routes>
                 <Route path='/home'/>
                 <Route path='/email' element={<EmailPage/>}/>
+                <Route path='/campaigns' element={<CampaignPage/>}/>
               </Routes>
             </div>
           </BrowserRouter>

@@ -20,8 +20,8 @@ export default [
         icon: <FlashOnOutlinedIcon sx={{px: "15px"}}/>
     },
     {
-        path: "/campaings",
-        text: "Campaings",
+        path: "/campaigns",
+        text: "Campaigns",
         icon: <SendOutlinedIcon sx={{px: "15px"}}/>
     },
     {

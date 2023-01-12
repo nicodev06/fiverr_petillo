@@ -21,6 +21,7 @@ from core.views import homepage
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('api.urls')),
+    path('api/', include('core.api.urls')),
+    path('api/', include('campaings.api.urls')),
     re_path(r"^.*$", homepage, name='dashboard'),
 ]

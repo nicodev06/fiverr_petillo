@@ -27,7 +27,7 @@ const Table = () => {
   const { senders: {results}, emailSendersCount: {senders}, emailCurrentPage } = useContext(Context);
 
   function displayedAccounts(){
-    return (emailCurrentPage - 1) * 4 + results?.length
+    return results?.length
   }
 
   return (
