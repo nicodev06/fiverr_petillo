@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -6,6 +6,11 @@ import Stack from '@mui/material/Stack';
 import IconButton from '@mui/material/IconButton';
 import SearchIcon from '@mui/icons-material/Search';
 import { InputBase } from '@mui/material';
+
+import PlayArrowOutlinedIcon from '@mui/icons-material/PlayArrowOutlined';
+import PauseOutlinedIcon from '@mui/icons-material/PauseOutlined';
+import CreateOutlinedIcon from '@mui/icons-material/CreateOutlined';
+import DoneOutlineOutlinedIcon from '@mui/icons-material/DoneOutlineOutlined';
 
 import BasicDialog from '../../BasicDialog';
 import BasicInput from '../../BasicInput';
@@ -23,6 +28,111 @@ const AddNewActivator = ({ handleClick }) => {
             >
                 <p>+ Add New</p>
             </button>
+        </Box>
+    )
+}
+
+const FilterActivator = ({ handleClick }) => {
+    return (
+        <Box>
+            <button
+            style={{backgroundColor: 'var(--light-blue-color)'}}
+            onClick={handleClick}
+            >
+                <p>Filter</p>
+            </button>
+        </Box>
+    )
+}
+
+const FilterCampaigns = ({ handleClose, currentStatus, setCurrentStatus  }) => {
+
+    const {campaignsCurrentPage, setCampaigns, fetchFromAPI} = useContext(Context);
+
+    
+    function getCampaigns(status){
+        if (currentStatus === status){
+            setCurrentStatus(null);
+            fetchFromAPI(`/api/campaigns/?page=${campaignsCurrentPage}`, setCampaigns);
+        } else {
+            setCurrentStatus(status);
+            fetchFromAPI(`/api/campaigns/?status=${status}&page=1`, setCampaigns);
+        }
+        handleClose();
+    }
+
+    return (
+        <Box
+        sx={{
+            width: '15vw',
+            backgroundColor: '#F6FBFF'
+        }}
+        >
+            <Stack
+            sx={{
+                '&>*': {
+                    py:1
+                },
+            }}
+            >
+                <Box
+                sx={{
+                    '&:hover':{
+                        backgroundColor: 'var(--light-blue-color)'
+                    },
+                    backgroundColor: currentStatus === 'active' ?  'var(--light-blue-color)' : 'transparent'   
+        
+                }}
+                >
+                    <Stack
+                    direction='row' spacing={1} onClick={() => {getCampaigns('active')}}>
+                        <PlayArrowOutlinedIcon sx={{pl: 1}}/>
+                        <Typography variant='subtitle1'>Active</Typography>
+                    </Stack>
+                </Box>
+                <Box
+                sx={{
+                    '&:hover':{
+                        backgroundColor: 'var(--light-blue-color)'
+                    },
+                    backgroundColor: currentStatus === 'paused' ?  'var(--light-blue-color)' : 'transparent'
+                }}
+                >
+                    <Stack
+                    direction='row' spacing={1} onClick={() => {getCampaigns('paused')}}>
+                        <PauseOutlinedIcon sx={{pl: 1}}/>
+                        <Typography variant='subtitle1'>Paused</Typography>
+                    </Stack>
+                </Box>
+                <Box
+                sx={{
+                    '&:hover':{
+                        backgroundColor: 'var(--light-blue-color)'
+                    },
+                    backgroundColor: currentStatus === 'draft' ?  'var(--light-blue-color)' : 'transparent'
+                }}
+                >
+                    <Stack
+                    direction='row' spacing={1} onClick={() => {getCampaigns('draft')}}>
+                        <CreateOutlinedIcon sx={{pl: 1}}/>
+                        <Typography variant='subtitle1'>Draft</Typography>
+                    </Stack>
+                </Box>
+                <Box
+                sx={{
+                    '&:hover':{
+                        backgroundColor: 'var(--light-blue-color)'
+                    },
+                    backgroundColor: currentStatus === 'completed' ?  'var(--light-blue-color)' : 'transparent'
+                }}
+                >
+                    <Stack
+                    direction='row' spacing={1} onClick={() => {getCampaigns('completed')}}>
+                        <DoneOutlineOutlinedIcon sx={{pl: 1}}/>
+                        <Typography variant='subtitle1'>Completed</Typography>
+                    </Stack>
+                </Box>
+            </Stack>
         </Box>
     )
 }
@@ -89,6 +199,9 @@ const AddNew = ({ handleClose }) => {
 }
 
 const TopBar = () => {
+
+  const [currentStatus, setCurrentStatus] = useState(null);
+
   return (
     <Box
     sx={{
@@ -114,20 +227,9 @@ const TopBar = () => {
                         <SearchIcon style={{color: 'var(--gray-color)'}}/>
                     </IconButton>
                 </Box>
-                <Box>
-                    <button
-                    style={{backgroundColor: 'var(--light-blue-color)'}}
-                    >
-                        <p>Filter</p>
-                    </button>
-                </Box>
-                <Box>
-                    <button
-                    style={{backgroundColor: 'var(--light-blue-color)'}}
-                    >
-                        <p>Date</p>
-                    </button>
-                </Box>
+                <BasicDialog Activator={FilterActivator}>
+                    <FilterCampaigns currentStatus={currentStatus} setCurrentStatus={setCurrentStatus}/>
+                </BasicDialog>
             </Stack>
         </Box>
         <Box>

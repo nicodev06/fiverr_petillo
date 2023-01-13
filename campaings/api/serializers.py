@@ -9,7 +9,7 @@ class CampaignSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Campaign
-        fields = ['name', 'created_at', 'status', 'workspace', 'days_since_creation']
+        fields = ['id', 'name', 'created_at', 'status', 'workspace', 'days_since_creation']
         read_only_fields = ['workspace', 'created_at']
 
     def get_days_since_creation(self, obj):
