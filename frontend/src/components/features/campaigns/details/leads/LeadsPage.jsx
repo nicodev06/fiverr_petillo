@@ -3,7 +3,7 @@ import { useOutletContext } from "react-router-dom"
 
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import Grid from '@mui/material/Grid';
+import TopBar from './TopBar';
 
 
 const LeadsPage = () => {
@@ -13,7 +13,7 @@ const LeadsPage = () => {
   return (
     <Box
     sx={{
-      mx: '4vw',
+      mx: '3vw',
       my: '3vh'
     }}
     >
@@ -25,11 +25,12 @@ const LeadsPage = () => {
         alignItems: 'center'
       }}
       >
-        <Typography variant='h6' sx={{px: 1}}>{campaign.name}</Typography>
-        <button className={campaign.status}>
-          <p style={{textTransform: 'capitalize'}}>{campaign.status}</p>
+        <Typography variant='h6' sx={{px: 1}}>{campaign?.name}</Typography>
+        <button className={campaign?.status}>
+          <p style={{textTransform: 'capitalize'}}>{campaign?.status}</p>
         </button>
       </Box>
+      <TopBar/>
     </Box>
   )
 }

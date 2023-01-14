@@ -1,7 +1,7 @@
 from rest_framework import generics
 from core.models import Workspace
-from campaings.models import Campaign
-from .serializers import CampaignSerializer
+from campaings.models import Campaign, Lead
+from .serializers import CampaignSerializer, LeadSerializer
 from core.api.utils import EmailPagination 
 
 class ListCreateCampaignAPIView(generics.ListCreateAPIView):
@@ -45,4 +45,8 @@ class SearchInCampaignsAPIView(generics.ListAPIView):
     
     def get_queryset(self):
         return Campaign.objects.filter(name__icontains=self.request.query_params.get('q')).order_by('-id')
+
+class LeadListCreateAPIView(generics.ListCreateAPIView):
+    queryset = Lead.objects.all()
+    serializer_class = LeadSerializer
     

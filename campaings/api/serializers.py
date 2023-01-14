@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.utils.timezone import now
-from campaings.models import Campaign
+from campaings.models import Campaign, Lead
 
 
 class CampaignSerializer(serializers.ModelSerializer):
@@ -14,3 +14,12 @@ class CampaignSerializer(serializers.ModelSerializer):
 
     def get_days_since_creation(self, obj):
         return (now().date() - obj.created_at).days
+
+class LeadSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Lead
+        fields = '__all__'
+
+class FileUploadSerializer(serializers.Serializer):
+    file = serializers.FileField()
