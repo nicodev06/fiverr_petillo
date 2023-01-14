@@ -6,6 +6,10 @@ import Stack from '@mui/material/Stack';
 import IconButton from '@mui/material/IconButton';
 import SearchIcon from '@mui/icons-material/Search';
 import { InputBase } from '@mui/material';
+import TextField from '@mui/material/TextField';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 import PlayArrowOutlinedIcon from '@mui/icons-material/PlayArrowOutlined';
 import PauseOutlinedIcon from '@mui/icons-material/PauseOutlined';
@@ -45,7 +49,20 @@ const FilterActivator = ({ handleClick }) => {
     )
 }
 
-const FilterCampaigns = ({ handleClose, currentStatus, setCurrentStatus  }) => {
+const DateActivator = ({ handleClick }) => {
+    return (
+        <Box>
+            <button
+            style={{backgroundColor: 'var(--light-blue-color)'}}
+            onClick={handleClick}
+            >
+                <p>Date</p>
+            </button>
+        </Box>
+    )
+}
+
+const FilterCampaigns = ({ handleClose, currentStatus, setCurrentStatus, currentDate  }) => {
 
     const {campaignsCurrentPage, setCampaigns, fetchFromAPI} = useContext(Context);
 
@@ -53,10 +70,18 @@ const FilterCampaigns = ({ handleClose, currentStatus, setCurrentStatus  }) => {
     function getCampaigns(status){
         if (currentStatus === status){
             setCurrentStatus(null);
-            fetchFromAPI(`/api/campaigns/?page=${campaignsCurrentPage}`, setCampaigns);
+            if (currentDate){
+                fetchFromAPI(`/api/campaigns/?created_at=${currentDate}`, setCampaigns);
+            } else {
+                fetchFromAPI(`/api/campaigns/?page=${campaignsCurrentPage}`, setCampaigns);
+            }
         } else {
             setCurrentStatus(status);
-            fetchFromAPI(`/api/campaigns/?status=${status}&page=1`, setCampaigns);
+            if (currentDate){
+                fetchFromAPI(`/api/campaigns/?status=${status}&created_at=${currentDate}`, setCampaigns); 
+            } else {
+                fetchFromAPI(`/api/campaigns/?status=${status}&page=1`, setCampaigns);
+            }
         }
         handleClose();
     }
@@ -137,6 +162,44 @@ const FilterCampaigns = ({ handleClose, currentStatus, setCurrentStatus  }) => {
     )
 }
 
+const Calendar = ({ handleClose, currentStatus, currentDate, setCurrentDate }) => {
+    const { setCampaigns, fetchFromAPI} = useContext(Context);
+
+    function filterByDate(date){
+        if (date){
+            if (currentStatus){
+                fetchFromAPI(`/api/campaigns/?status=${currentStatus}&created_at=${date}`, setCampaigns);
+                handleClose();
+            } else {
+                fetchFromAPI(`/api/campaigns/?created_at=${date}`, setCampaigns);
+                handleClose();
+            }
+        } else {
+            if (currentStatus){
+                fetchFromAPI(`/api/campaigns/?status=${currentStatus}`, setCampaigns);
+                handleClose();
+            } else {
+                fetchFromAPI(`/api/campaigns/`, setCampaigns);
+                handleClose();
+            }
+        }
+    }
+    
+    return (
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <DatePicker
+            label="Choose Date"
+            value={currentDate}
+            onChange={(newValue) => {
+                setCurrentDate(newValue);
+                filterByDate(newValue.format('YYYY-MM-DD'));
+            }}
+            renderInput={(params) => <TextField {...params} />}
+        />
+        </LocalizationProvider>
+    );
+}
+
 const AddNew = ({ handleClose }) => {
 
     const [name, setName] = useState("");
@@ -201,6 +264,13 @@ const AddNew = ({ handleClose }) => {
 const TopBar = () => {
 
   const [currentStatus, setCurrentStatus] = useState(null);
+  const [currentDate, setCurrentDate] = useState(null);
+  const {setCampaigns, fetchFromAPI} = useContext(Context);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  function search(){
+    fetchFromAPI(`/api/campaign_search/?q=${searchQuery}`, setCampaigns);
+  }
 
   return (
     <Box
@@ -222,13 +292,17 @@ const TopBar = () => {
                     sx={{flex: 1, ml: 1}}
                     placeholder="Search campaign..."
                     inputProps={{'type' : 'text'}}
+                    onChange={(e) =>  {setSearchQuery(e.target.value)}}
                     />
-                    <IconButton type='button' sx={{ p: '10px' }}>
+                    <IconButton type='button' sx={{ p: '10px' }} onClick={search}>
                         <SearchIcon style={{color: 'var(--gray-color)'}}/>
                     </IconButton>
                 </Box>
                 <BasicDialog Activator={FilterActivator}>
-                    <FilterCampaigns currentStatus={currentStatus} setCurrentStatus={setCurrentStatus}/>
+                    <FilterCampaigns currentStatus={currentStatus} setCurrentStatus={setCurrentStatus} currentDate={currentDate}/>
+                </BasicDialog>
+                <BasicDialog Activator={DateActivator}>
+                    <Calendar currentStatus={currentStatus} currentDate={currentDate} setCurrentDate={setCurrentDate}/>
                 </BasicDialog>
             </Stack>
         </Box>

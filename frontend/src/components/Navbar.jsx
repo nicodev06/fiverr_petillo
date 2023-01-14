@@ -26,11 +26,11 @@ const ManageWorkSpaceIcon = ({ handleClick }) => {
 
 const Navbar = () => {
   const { pathname } = useLocation();
-  const [title, setTitle] = useState(pathname.slice(1,pathname.length));
+  const [title, setTitle] = useState(pathname.split('/')[1]);
   const { currentUser } = useContext(Context);
 
   useEffect(() => {
-    setTitle(pathname.slice(1,pathname.length))
+    setTitle(pathname.split('/')[1]);
   }, [pathname])
 
   return (

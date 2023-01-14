@@ -127,3 +127,13 @@ class UpdateDestroyGenericSenderAPIView(generics.RetrieveUpdateDestroyAPIView):
 
     queryset = GenericSender.objects.all()
     serializer_class = GenericSenderSerializer
+
+class SearchGenericSenderAPIView(generics.ListAPIView):
+
+    queryset = GenericSender.objects.all()
+    serializer_class = GenericSenderSerializer
+    pagination_class = EmailPagination
+
+    def get_queryset(self):
+        return GenericSender.objects.filter(email__icontains=self.request.query_params.get('q')).order_by('-id')
+    

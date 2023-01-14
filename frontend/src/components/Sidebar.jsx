@@ -24,7 +24,7 @@ const Sidebar = () => {
             <Stack>
                 {categories.map((category) => 
                     <Link to={category.path}>
-                        <div className={`flex app__sidebar-link ${selected === category.path ? "current" : ""}`}>
+                        <div className={`flex app__sidebar-link ${selected.split('/')[1] === category.path.split('/')[1] ? "current" : ""}`}>
                             {category.icon}
                             <p>{category.text}</p>
                         </div>

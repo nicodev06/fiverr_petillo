@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useContext} from 'react'
 
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -19,6 +19,9 @@ import GmailIcon from '../../../assets/gmail.svg';
 
 import GmailWorkFlow from './GmailWorkFlow';
 import GenericWorkFlow from './GenericWorkFlow';
+
+import { Context } from '../../../utils/context';
+
 
 const AddEmailActivator = ({ handleClick }) => {
     return (
@@ -123,6 +126,14 @@ const ChoiceProvider = () => {
 }
 
 export default () => {
+
+    const [searchQuery, setSearchQuery] = useState('');
+    const {fetchFromAPI, setSenders} = useContext(Context);
+
+    function search(){
+        fetchFromAPI(`/api/sender_search/?q=${searchQuery}`, setSenders);
+    }
+
     return (
         <Box
         sx={{
@@ -141,8 +152,9 @@ export default () => {
                 sx={{flex: 1, ml: 1}}
                 placeholder="Search email..."
                 inputProps={{'type' : 'text'}}
+                onChange={(e) => {setSearchQuery(e.target.value)}}
                 />
-                <IconButton type='button' sx={{ p: '10px' }}>
+                <IconButton type='button' sx={{ p: '10px' }} onClick={search}>
                     <SearchIcon style={{color: 'var(--gray-color)'}}/>
                 </IconButton>
             </Box>

@@ -1,5 +1,7 @@
 import React, { useState, useContext } from 'react'
 
+import { Link } from 'react-router-dom';
+
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
@@ -190,16 +192,18 @@ const CampaignSettings = ({ campaign, handleClose }) => {
             >
                 <Box
                 >
-                    <Stack
-                    sx={{
-                        '&:hover':{
-                            backgroundColor: 'var(--light-blue-color)'
-                        }
-                    }}
-                    direction='row' spacing={1}>
-                        <OutboundRoundedIcon sx={{pl: 1}}/>
-                        <Typography variant='subtitle1'>Open</Typography>
-                    </Stack>
+                    <Link to={`/campaigns/${campaign.id}/insight`}>
+                        <Stack
+                        sx={{
+                            '&:hover':{
+                                backgroundColor: 'var(--light-blue-color)'
+                            }
+                        }}
+                        direction='row' spacing={1}>
+                            <OutboundRoundedIcon sx={{pl: 1}}/>
+                            <Typography variant='subtitle1'>Open</Typography>
+                        </Stack>
+                    </Link>
                     <BasicDialog Activator={RenameCampaignActivator}>
                         <RenameCampaign handleClose={handleClose} campaign={campaign}/>
                     </BasicDialog>

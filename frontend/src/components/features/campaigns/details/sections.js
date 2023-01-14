@@ -1,0 +1,1 @@
+export default ['insight', 'sequences', 'leads', 'schedule', 'settings']

@@ -8,7 +8,8 @@ from .views import (getCurrentUser,
                     CreateGenericSenderAPIView,
                     email_pages_count,
                     email_senders_count,
-                    UpdateDestroyGenericSenderAPIView
+                    UpdateDestroyGenericSenderAPIView,
+                    SearchGenericSenderAPIView
                     )
 
 urlpatterns = [
@@ -21,5 +22,6 @@ urlpatterns = [
     path('generic_sender/', CreateGenericSenderAPIView.as_view(), name="create generic sender"),
     path('email_pages/',email_pages_count , name="email pages count"),
     path('email_senders/', email_senders_count, name="email senders count"),
-    path('toggle_sender/<int:pk>/', UpdateDestroyGenericSenderAPIView.as_view(), name="toggle sender")
+    path('toggle_sender/<int:pk>/', UpdateDestroyGenericSenderAPIView.as_view(), name="toggle sender"),
+    path('sender_search/', SearchGenericSenderAPIView.as_view(), name='search sender')
 ]
