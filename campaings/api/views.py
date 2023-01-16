@@ -1,7 +1,13 @@
-from rest_framework import generics
+import io
+import pandas
+import time
+from rest_framework import generics, status
+from rest_framework.response import Response
+from rest_framework.decorators import api_view, parser_classes
+from rest_framework.parsers import FileUploadParser, MultiPartParser
 from core.models import Workspace
 from campaings.models import Campaign, Lead
-from .serializers import CampaignSerializer, LeadSerializer
+from .serializers import CampaignSerializer, LeadSerializer, CsvUploadSerializer
 from core.api.utils import EmailPagination 
 
 class ListCreateCampaignAPIView(generics.ListCreateAPIView):
@@ -49,4 +55,29 @@ class SearchInCampaignsAPIView(generics.ListAPIView):
 class LeadListCreateAPIView(generics.ListCreateAPIView):
     queryset = Lead.objects.all()
     serializer_class = LeadSerializer
-    
+
+@api_view(['POST'])
+@parser_classes([MultiPartParser])
+def leadsColumnsNameAPIView(request): 
+    try:
+        serializer = CsvUploadSerializer(data=request.data)
+        if serializer.is_valid():
+            defaults = ['firstname', 'lastname', 'email', 'icebraker', 'personalisation', 'phonenumber', 'jobtitle', 'company']
+            default_fields = []
+            custom_fields = []
+            samples = []
+            csv_file = serializer.validated_data['file']
+            with io.TextIOWrapper(csv_file, encoding="ISO-8859-1") as text_file:
+                file_reader = pandas.read_csv(text_file)
+                for (key, value) in file_reader.iloc[0:2, 0:].to_dict().items():
+                    if ''.join(char for char in key if char.isalnum()).lower() in defaults:
+                        default_fields.append(key)
+                    else:
+                        custom_fields.append(key)
+                    samples.append(value[0])
+            
+            return Response({"default_fields": default_fields, "custom_fields": custom_fields, "samples": samples}, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    except:
+        return Response(status=status.HTTP_404_BAD_REQUEST)
