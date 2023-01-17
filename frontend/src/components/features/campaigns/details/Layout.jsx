@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useContext} from 'react';
+import React, {useState, useEffect, useContext, createContext} from 'react';
 import { useParams, Outlet, Link, useLocation } from 'react-router-dom';
 
 import Box from '@mui/material/Box';
@@ -10,6 +10,7 @@ import sections from './sections';
 
 import { Context } from '../../../../utils/context';
 
+export const CampaignContext = createContext();
 
 const Layout = () => {
   
@@ -28,7 +29,11 @@ const Layout = () => {
   }, [id])
 
   return (
-    <Box
+    
+    <CampaignContext.Provider value={{
+        campaign
+    }}>
+        <Box
     sx={{
         mx: '4vw',
         my: '6vh'
@@ -36,7 +41,7 @@ const Layout = () => {
     >
         <Grid container spacing={2}>
             {sections.map((section) => 
-                <Grid item xs={2.4}>
+                <Grid item xs={2.4} key={section}>
                     <Link to={`/campaigns/${id}/${section}`}>
                         <Box
                         sx={{
@@ -58,6 +63,7 @@ const Layout = () => {
             <Outlet context={[campaign]}/>
         </Box>
     </Box>
+    </CampaignContext.Provider>
   )
 }
 

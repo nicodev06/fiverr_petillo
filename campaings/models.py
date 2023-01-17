@@ -6,6 +6,7 @@ class Campaign(models.Model):
     created_at = models.DateField(auto_now_add=True)
     status = models.CharField(max_length=6, blank=True, default='draft')
     workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE, related_name='campaigns', default=1)
+    leads_fields = models.JSONField(blank=True, null=True, default='null')
 
     def __str__(self):
         return self.name
@@ -20,7 +21,7 @@ class Lead(models.Model):
     phone_number = models.CharField(max_length=248, null=True, blank=True)
     job_title = models.CharField(max_length=248, null=True, blank=True)
     company = models.CharField(max_length=248, null=True, blank=True)
-    custom_fields = models.JSONField()
+    custom_fields = models.JSONField(blank=True, null=True)
 
     def __str__(self):
         return self.email

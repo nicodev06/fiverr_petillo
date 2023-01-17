@@ -80,4 +80,60 @@ def leadsColumnsNameAPIView(request):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except:
-        return Response(status=status.HTTP_404_BAD_REQUEST)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+def match(field):
+    defaults_fields = ['email', 'first_name', 'last_name', 'ice_braker', 'personalisation', 'phone_number', 'job_title', 'company', 'custom_fields']
+    raw_field = ''.join(char for char in field if char.isalnum()).lower()
+    for f in defaults_fields:
+        if ''.join(char for char in f if char.isalnum()) == raw_field:
+            return f
+
+@api_view(['PUT'])
+def updateLeadsFieldsAPIView(request, pk):
+    try:
+        default_fields = {}
+        for field in request.data['defaultFields']:
+            default_fields[match(field)] = field
+        request.data['defaultFields'] = default_fields
+        print(request.data['defaultFields'])
+        Campaign.objects.filter(id=pk).update(leads_fields=request.data)
+        return Response(status=status.HTTP_200_OK)
+    except:
+        return Response(status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+def createLeadsFromCsv(request,pk):
+    try:
+        serializer = CsvUploadSerializer(data=request.data)
+        if serializer.is_valid():
+            campaign = Campaign.objects.get(id=pk)
+            default_fields = campaign.leads_fields['defaultFields']
+            custom_fields = campaign.leads_fields['customFields']
+            csv_file = serializer.validated_data['file']
+            with io.TextIOWrapper(csv_file, encoding="ISO-8859-1") as text_file:
+                file_reader = pandas.read_csv(text_file)
+                for _, row in file_reader.iterrows():
+                    data_dict = {}
+                    for field in default_fields.keys():
+                        data_dict[field] = row[default_fields[field]]
+                    custom = {}
+                    for field in custom_fields:
+                        custom[field] = row[field]
+                    print(custom)
+                    lead = Lead(custom_fields=custom, campaign=campaign, **data_dict)
+                    lead.save()
+            return Response(status=status.HTTP_201_CREATED)
+    except:
+        return Response(status.HTTP_400_BAD_REQUEST)
+            
+        
+@api_view(['POST'])
+def createLeadAPIView(request, pk):
+    campaign = Campaign.objects.get(pk=pk)
+    serializer = LeadSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save(campaign=campaign)
+        return Response(status=status.HTTP_201_CREATED)
+    else:
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

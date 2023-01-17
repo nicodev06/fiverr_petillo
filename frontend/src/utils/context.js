@@ -1,6 +1,6 @@
 import { useState, useEffect, createContext } from 'react';
 
-export const Context = createContext()
+export const Context = createContext();
 
 export const MainContext = ({ children }) => {
     
