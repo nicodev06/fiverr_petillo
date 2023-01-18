@@ -146,3 +146,21 @@ button:hover {
 .completed {
   background-color: #7ABFFF;
 }
+
+/* width */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: var(--light-gray-color);
+  border-radius: 10px; 
+}
+ 
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #000; 
+  border-radius: 10px;
+}
+

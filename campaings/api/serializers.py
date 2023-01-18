@@ -20,7 +20,6 @@ class LeadSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lead
         fields = '__all__'
-        read_only_fields = ['campaign']
 
 class CsvUploadSerializer(serializers.Serializer):
     file = serializers.FileField()

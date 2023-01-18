@@ -17,6 +17,15 @@ import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
 import ThumbUpOffAltOutlinedIcon from '@mui/icons-material/ThumbUpOffAltOutlined';
 import ThumbDownOutlined from '@mui/icons-material/ThumbDownOutlined';
 import Person2OutlinedIcon from '@mui/icons-material/Person2Outlined';
+import DoneRoundedIcon from '@mui/icons-material/DoneRounded';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import ReportProblemOutlinedIcon from '@mui/icons-material/ReportProblemOutlined';
+import InboxOutlinedIcon from '@mui/icons-material/InboxOutlined';
+import AutoStoriesOutlinedIcon from '@mui/icons-material/AutoStoriesOutlined';
+import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
+import ReplyRoundedIcon from '@mui/icons-material/ReplyRounded';
+import ThumbDownOffAltRoundedIcon from '@mui/icons-material/ThumbDownOffAltRounded';
+
 
 
 import BasicDialog from '../../../../BasicDialog';
@@ -502,8 +511,310 @@ const AddLeadManually = ({ handleClose }) => {
     )
 }
 
+const FilterActivator = ({ handleClick }) => {
+    return (
+        <button style={{backgroundColor: 'transparent'}} onClick={handleClick}>
+            <p>Filter</p>
+        </button>
+    )
+}
+
+const Filter = ({ handleClose, active, setActive }) => {
+
+    const {campaign, setLeads, setNext} = useContext(CampaignContext);
+
+    function handleFilter(name, param, q){
+        if (name !== active){
+            setActive(name);
+            fetch(`${process.env.REACT_APP_API_URL}/api/leads/${campaign.id}/${param}/?q=${q}`, {
+                method: 'GET',
+                headers:{
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then((response) => {
+                    if (response.status === 200){
+                        response.json()
+                            .then((data) => {
+                                setLeads(data)
+                                handleClose();
+                            })
+                    }
+                })
+            } else {
+                setActive(null);
+                fetch(`${process.env.REACT_APP_API_URL}/api/leads/${campaign?.id}/`, {
+                    method: 'GET',
+                    headers:{
+                        'Content-Type': 'application/json'
+                    }
+                })
+                    .then((response) => {
+                        response.json()
+                            .then((data) => {
+                                setLeads(data.results);
+                                setNext(data.next);
+                                handleClose();
+                            })
+                })
+        }
+    }
+
+    return (
+        <Box
+        sx={{
+            backgroundColor: '#F6FBFF',
+            width: '20vw'
+        }}
+        >
+            <Stack
+            spacing={1}
+            sx={{
+                p: 1
+            }}
+            >
+               <Stack spacing={1} direction='row'
+               sx={{
+                backgroundColor: active === 'completed' ? 'var(--sky-blue-color)' : 'transparent'
+               }}
+               >
+                    <IconButton onClick={() => {handleFilter('completed', 'replied', 1)}}>
+                        <DoneRoundedIcon/>
+                    </IconButton>
+                    <Typography variant='subtitle1'>Completed</Typography>
+                </Stack>
+                <Stack spacing={1} direction='row'
+                sx={{
+                    backgroundColor: active === 'contacted' ? 'var(--sky-blue-color)' : 'transparent'
+                   }}
+                >
+                    <IconButton onClick={() => {handleFilter('contacted', 'contacted', 1)}}>
+                        <EditOutlinedIcon/>
+                    </IconButton>
+                    <Typography variant='subtitle1'>Contacted</Typography>
+                </Stack>
+                <Stack spacing={1} direction='row'
+                sx={{
+                    backgroundColor: active === 'bounced' ? 'var(--sky-blue-color)' : 'transparent'
+                   }}
+                >
+                    <IconButton onClick={() => {handleFilter('bounced', 'bounced', 1)}}>
+                        <ReportProblemOutlinedIcon/>
+                    </IconButton>
+                    <Typography variant='subtitle1'>Bounced</Typography>
+                </Stack>
+                <Stack spacing={1} direction='row'
+                sx={{
+                    backgroundColor: active === 'not contacted' ? 'var(--sky-blue-color)' : 'transparent'
+                   }}
+                >
+                    <IconButton onClick={() => {handleFilter('not contacted', 'contacted', 0)}}>
+                        <InboxOutlinedIcon/>
+                    </IconButton>
+                    <Typography variant='subtitle1'>Not Contacted</Typography>
+                </Stack>
+                <Stack spacing={1} direction='row'
+                sx={{
+                    backgroundColor: active === 'email opened' ? 'var(--sky-blue-color)' : 'transparent'
+                   }}
+                >
+                    <IconButton onClick={() => {handleFilter('email opened', 'email_opened', 1)}}>
+                        <AutoStoriesOutlinedIcon/>
+                    </IconButton>
+                    <Typography variant='subtitle1'>Email Opened</Typography>
+                </Stack>
+                <Stack spacing={1} direction='row'
+                sx={{
+                    backgroundColor: active === 'email not opened' ? 'var(--sky-blue-color)' : 'transparent'
+                   }}
+                >
+                    <IconButton onClick={() => {handleFilter('email not opened', 'email_opened', 0)}}>
+                        <CloseOutlinedIcon/>
+                    </IconButton>
+                    <Typography variant='subtitle1'>Email Not Opened</Typography>
+                </Stack>
+                <Stack spacing={1} direction='row'
+                sx={{
+                    backgroundColor: active === 'lead replied' ? 'var(--sky-blue-color)' : 'transparent'
+                   }}
+                >
+                    <IconButton onClick={() => {handleFilter('lead replied', 'replied', 1)}}>
+                        <ReplyRoundedIcon/>
+                    </IconButton>
+                    <Typography variant='subtitle1'>Lead Replied</Typography>
+                </Stack>
+                <Stack spacing={1} direction='row'
+                sx={{
+                    backgroundColor: active === 'lead no replied' ? 'var(--sky-blue-color)' : 'transparent'
+                   }}
+                >
+                    <IconButton onClick={() => {handleFilter('lead no replied', 'replied', 0)}}>
+                        <ThumbDownOffAltRoundedIcon/>
+                    </IconButton>
+                    <Typography variant='subtitle1'>Lead no Replied</Typography>
+                </Stack> 
+            </Stack>
+        </Box>
+    )
+}
+
+
+const UnSubscribeActivator = ({ handleClick }) => {
+    return (
+        <IconButton onClick={handleClick}>
+            <DoDisturbRoundedIcon/>
+        </IconButton>
+    )
+}
+
+const UnSubscribeProspects = ({handleClose}) => {
+
+    const {selectedLeads} = useContext(CampaignContext);
+
+    function unsubscribe(){
+        fetch(`${process.env.REACT_APP_API_URL}/api/leads/unsubscribe/`, {
+            method: 'PUT',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': 'RcrvEBwq0vTqIzeemLziaRdIs1tnpu4f'
+            },
+            body: JSON.stringify(selectedLeads.map((lead) => { return {...lead, subscribe: false}}))
+        })
+            .then((response) => {
+                if (response.status === 200){
+                    handleClose()
+                }
+            })
+    }
+
+    return (
+    <Box
+    sx={{
+        m:1
+    }}
+    >
+        <Box>
+            <Stack direction='row' spacing={1} sx={{alignItems: 'center'}}>
+                <DoDisturbRoundedIcon/>
+                <Typography variant='h6'>
+                    Unsubscribe Prospects
+                </Typography>
+            </Stack>
+        </Box>
+        <hr/>
+        <Box
+        sx={{mt: 1}}
+        >
+            <Typography>Do you really want to remove the selected prospects <br/> from your list?</Typography>
+        </Box>
+        <Box
+        sx={{mt: 2}}
+        >
+            <Typography>Once you do so, we will be unable to send <br/> them emails on your behalf.</Typography>
+        </Box>
+        <hr/>
+        <Box
+        sx={{
+            display: 'flex',
+            justifyContent: 'flex-end',
+            alignItems: 'center'
+        }}
+        >
+            <button className='btn-dark' onClick={handleClose}>
+                <p>{`<`} Back</p>
+            </button>
+            <button style={{marginLeft: '10px', backgroundColor: 'var(--light-blue-color)'}} onClick={unsubscribe}><p>Unsubscribe</p></button>
+        </Box>
+    </Box>
+    )
+}
+
+const DeleteActivator = ({handleClick}) => {
+    return (
+        <IconButton onClick={handleClick}>
+            <DeleteOutlineRoundedIcon/>
+        </IconButton>
+    )
+}
+
+const DeleteLeads = ({ handleClose }) => {
+
+    const {selectedLeads, setLeads, setNext, campaign} = useContext(CampaignContext);
+    
+    function deleteLeads(){
+        fetch(`${process.env.REACT_APP_API_URL}/api/leads/delete/`, {
+            method: 'DELETE',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': 'RcrvEBwq0vTqIzeemLziaRdIs1tnpu4f'
+            },
+            body: JSON.stringify(selectedLeads)
+        })
+            .then(() => {
+                fetch(`${process.env.REACT_APP_API_URL}/api/leads/${campaign?.id}/`, {
+                    method: 'GET',
+                    headers:{
+                        'Content-Type': 'application/json'
+                    }
+                })
+                    .then((response) => {
+                        response.json()
+                            .then((data) => {
+                                setLeads(data.results);
+                                setNext(data.next);
+                                handleClose();
+                            })
+                    })
+            })
+    }
+
+    return (
+        <Box
+        sx={{
+            m:1
+        }}
+        >
+            <Box>
+                <Stack direction='row' spacing={1} sx={{alignItems: 'center'}}>
+                    <DeleteOutlineRoundedIcon/>
+                    <Typography variant='h6'>
+                        Delete Prospects
+                    </Typography>
+                </Stack>
+            </Box>
+            <hr/>
+            <Box
+            sx={{mt: 1}}
+            >
+                <Typography>Do you really want to delete the selected prospects <br/> from your list?</Typography>
+            </Box>
+            <Box
+            sx={{mt: 2}}
+            >
+                <Typography>Once you do so, we will be unable to send <br/> them emails on your behalf.</Typography>
+            </Box>
+            <hr/>
+            <Box
+            sx={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+                alignItems: 'center'
+            }}
+            >
+                <button className='btn-dark' onClick={handleClose}>
+                    <p>{`<`} Back</p>
+                </button>
+                <button style={{marginLeft: '10px', backgroundColor: 'var(--light-blue-color)'}} onClick={deleteLeads}><p>Delete</p></button>
+            </Box>
+    </Box>
+    )
+}
+
 const TopBar = () => {
-  const {showSnackBar, severity, setShowSnackBar} = useContext(Context);  
+  const {showSnackBar, severity, setShowSnackBar} = useContext(Context);
+  const [active, setActive] = useState(null);  
   return (
     <Box
     sx={{
@@ -526,17 +837,17 @@ const TopBar = () => {
                     </IconButton>
             </Box>
             <Box>
-                <button style={{backgroundColor: 'transparent'}}>
-                    <p>Filter</p>
-                </button>
+                <BasicDialog Activator={FilterActivator}>
+                    <Filter active={active} setActive={setActive}/>
+                </BasicDialog>
             </Box>
             <Stack direction='row' spacing={1}>
-                <IconButton>
-                    <DoDisturbRoundedIcon/>
-                </IconButton>
-                <IconButton>
-                    <DeleteOutlineRoundedIcon/>
-                </IconButton>
+                <BasicDialog Activator={UnSubscribeActivator}>
+                    <UnSubscribeProspects/>
+                </BasicDialog>
+                <BasicDialog Activator={DeleteActivator}>
+                    <DeleteLeads/>
+                </BasicDialog>
                 <BasicDialog Activator={AddLeadsChoiceBarActivator}>
                     <AddLeadsChoice/>
                 </BasicDialog>

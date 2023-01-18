@@ -22,6 +22,11 @@ class Lead(models.Model):
     job_title = models.CharField(max_length=248, null=True, blank=True)
     company = models.CharField(max_length=248, null=True, blank=True)
     custom_fields = models.JSONField(blank=True, null=True)
+    contacted = models.BooleanField(blank=True, default=False)
+    bounced = models.BooleanField(blank=True, default=False)
+    email_opened = models.BooleanField(blank=True, default=False)
+    replied = models.BooleanField(blank=True, default=False)
+    subscribe = models.BooleanField(blank=True, default=True)
 
     def __str__(self):
         return self.email

@@ -136,4 +136,5 @@ class SearchGenericSenderAPIView(generics.ListAPIView):
 
     def get_queryset(self):
         return GenericSender.objects.filter(email__icontains=self.request.query_params.get('q')).order_by('-id')
+
     

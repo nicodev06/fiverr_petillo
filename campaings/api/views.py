@@ -9,6 +9,7 @@ from core.models import Workspace
 from campaings.models import Campaign, Lead
 from .serializers import CampaignSerializer, LeadSerializer, CsvUploadSerializer
 from core.api.utils import EmailPagination 
+from .utils import LeadsPagination
 
 class ListCreateCampaignAPIView(generics.ListCreateAPIView):
     queryset = Campaign.objects.all()
@@ -55,6 +56,11 @@ class SearchInCampaignsAPIView(generics.ListAPIView):
 class LeadListCreateAPIView(generics.ListCreateAPIView):
     queryset = Lead.objects.all()
     serializer_class = LeadSerializer
+    pagination_class = LeadsPagination
+
+    def get_queryset(self):
+        campaign = Campaign.objects.get(pk=self.kwargs['pk'])
+        return Lead.objects.filter(campaign=campaign).order_by('-id')
 
 @api_view(['POST'])
 @parser_classes([MultiPartParser])
@@ -137,3 +143,37 @@ def createLeadAPIView(request, pk):
         return Response(status=status.HTTP_201_CREATED)
     else:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class filterLeadsAPIView(generics.ListAPIView):
+    queryset = Lead.objects.all()
+    serializer_class = LeadSerializer
+
+    def get_queryset(self):
+        campaign = Campaign.objects.get(pk=self.kwargs['pk'])
+        status = self.kwargs['status']
+        value = self.request.query_params.get('q')
+        if value == 1:
+            value = True
+        elif value == 0:
+            value == False
+        options = {}
+        options[status] = value
+        return Lead.objects.filter(campaign=campaign, **options)
+
+@api_view(['PUT'])
+def unsuscribeLeadsAPIView(request):
+    #try:
+        for lead in request.data:
+            Lead.objects.filter(id=lead['id']).update(subscribe=False)
+        return Response(status=status.HTTP_200_OK)
+    #except:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['DELETE'])
+def deleteLeadsAPIView(request):
+    try:
+        for lead in request.data:
+            Lead.objects.get(id=lead['id']).delete()
+        return Response(status=status.HTTP_200_OK)
+    except:
+        return Response(status=status.HTTP_400_BAD_REQUEST)

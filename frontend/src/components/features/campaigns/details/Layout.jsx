@@ -1,6 +1,7 @@
 import React, {useState, useEffect, useContext, createContext} from 'react';
 import { useParams, Outlet, Link, useLocation } from 'react-router-dom';
 
+
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
@@ -19,6 +20,10 @@ const Layout = () => {
   const { fetchFromAPI } = useContext(Context);
   const [selected, setSelected] = useState(pathname.split('/')[3]);
   const [campaign, setCampaign] = useState(null);
+  const [leads, setLeads] = useState([]);
+  const [selectedLeads, setSelectedLeads] = useState([]);
+  const [next, setNext] = useState(null);
+  const [selectAll, setSelectAll] = useState(false);
 
   useEffect(() => {
     setSelected(pathname.split('/')[3]);
@@ -28,10 +33,34 @@ const Layout = () => {
     fetchFromAPI(`/api/campaign/${id}/`, setCampaign);
   }, [id])
 
+  useEffect(() => {
+    fetch(`${process.env.REACT_APP_API_URL}/api/leads/${campaign?.id}/`, {
+        method: 'GET',
+        headers:{
+            'Content-Type': 'application/json'
+        }
+    })
+        .then((response) => {
+            response.json()
+                .then((data) => {
+                    setLeads(data.results);
+                    setNext(data.next);
+                })
+        })
+  }, [campaign])
+
   return (
     
     <CampaignContext.Provider value={{
-        campaign
+        campaign,
+        leads,
+        setLeads,
+        next,
+        setNext,
+        selectedLeads,
+        setSelectedLeads,
+        selectAll,
+        setSelectAll
     }}>
         <Box
     sx={{
