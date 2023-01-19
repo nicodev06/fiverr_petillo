@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.utils.timezone import now
-from campaings.models import Campaign, Lead
+from campaings.models import Campaign, Lead, Sequence, Variant
 
 
 class CampaignSerializer(serializers.ModelSerializer):
@@ -23,3 +23,22 @@ class LeadSerializer(serializers.ModelSerializer):
 
 class CsvUploadSerializer(serializers.Serializer):
     file = serializers.FileField()
+
+
+class VariantSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Variant
+        fields = '__all__'
+        read_only_fields = ['sequence', 'name']
+
+class SequenceSerializer(serializers.ModelSerializer):
+
+    variants = VariantSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Sequence
+        fields = ['id', 'campaign', 'name', 'variants']
+        read_only_fields = ['campaign', 'name', 'variants']
+
+

@@ -30,3 +30,18 @@ class Lead(models.Model):
 
     def __str__(self):
         return self.email
+
+class Sequence(models.Model):
+    name = models.CharField(max_length=244)
+    campaign = models.ForeignKey(Campaign, on_delete=models.CASCADE, related_name='sequences', null=True)
+    waiting_time = models.IntegerField(blank=True, null=True);
+
+    def __str__(self):
+        return self.name
+
+class Variant(models.Model):
+    name = models.CharField(max_length=1)
+    sequence = models.ForeignKey(Sequence, on_delete=models.CASCADE, related_name='variants')
+
+    def __str__(self):
+        return self.name

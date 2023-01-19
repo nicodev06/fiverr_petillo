@@ -65,7 +65,7 @@ const Table = () => {
                 height: '35vh',
             }}
             >
-                {leads.map((lead) => <LeadDetails lead={lead}/>)}
+                {leads?.map((lead) => <LeadDetails lead={lead}/>)}
             </Stack>
         </Box>
         <Box sx={{

@@ -24,6 +24,53 @@ const Layout = () => {
   const [selectedLeads, setSelectedLeads] = useState([]);
   const [next, setNext] = useState(null);
   const [selectAll, setSelectAll] = useState(false);
+  const [sequences, setSequences] = useState([]);
+
+  function addSequence(){
+    fetch(`${process.env.REACT_APP_API_URL}/api/sequences/${campaign.id}/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': 'hQBH9g5qKNjm75igWxv1kEFTZ2XkPJcy'
+      }
+    })
+      .then((response) => {
+        if (response.status === 201){
+          response.json()
+            .then((data) => {
+              fetch(`${process.env.REACT_APP_API_URL}/api/variants/${data.id}/`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'X-CSRFToken': 'hQBH9g5qKNjm75igWxv1kEFTZ2XkPJcy'
+                }
+              })
+              .then((response) => {
+                if (response.status === 201){
+                    fetchSteps(campaign);
+                }
+              })
+            })
+        }
+      })
+  }
+
+
+  function fetchSteps(campaign){
+    fetch(`${process.env.REACT_APP_API_URL}/api/sequences/${campaign?.id}/`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include'
+      })
+        .then((response) => {
+          response.json()
+            .then((data) => {
+              setSequences(data);
+            })
+    })
+  }
 
   useEffect(() => {
     setSelected(pathname.split('/')[3]);
@@ -31,22 +78,11 @@ const Layout = () => {
 
   useEffect(() => {
     fetchFromAPI(`/api/campaign/${id}/`, setCampaign);
+    fetchFromAPI(`/api/sequences/${id}/`, setSequences);
   }, [id])
 
   useEffect(() => {
-    fetch(`${process.env.REACT_APP_API_URL}/api/leads/${campaign?.id}/`, {
-        method: 'GET',
-        headers:{
-            'Content-Type': 'application/json'
-        }
-    })
-        .then((response) => {
-            response.json()
-                .then((data) => {
-                    setLeads(data.results);
-                    setNext(data.next);
-                })
-        })
+    fetchSteps(campaign);
   }, [campaign])
 
   return (
@@ -60,7 +96,11 @@ const Layout = () => {
         selectedLeads,
         setSelectedLeads,
         selectAll,
-        setSelectAll
+        setSelectAll,
+        sequences,
+        setSequences,
+        fetchSteps,
+        addSequence
     }}>
         <Box
     sx={{
@@ -89,6 +129,21 @@ const Layout = () => {
             )}
         </Grid>
         <Box>
+            <Box
+            sx={{
+                width: '100%',
+                display: 'flex',
+                justifyContent: 'flex-end',
+                alignItems: 'center',
+                mr: '5vw',
+                my: '2vh'
+            }}
+            >
+                <Typography variant='subtitle1' sx={{px: 1}}>{campaign?.name}</Typography>
+                <button className={campaign?.status}>
+                <p style={{textTransform: 'capitalize'}}>{campaign?.status}</p>
+                </button>
+            </Box>
             <Outlet context={[campaign]}/>
         </Box>
     </Box>

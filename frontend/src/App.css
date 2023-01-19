@@ -164,3 +164,9 @@ button:hover {
   border-radius: 10px;
 }
 
+hr {
+  height: 1px;
+  background-color: #e9f5f9;
+}
+
+

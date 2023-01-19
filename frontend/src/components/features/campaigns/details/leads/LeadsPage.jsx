@@ -13,25 +13,7 @@ const LeadsPage = () => {
   const [campaign] = useOutletContext();
 
   return (
-    <Box
-    sx={{
-      mx: '3vw',
-      my: '1vh'
-    }}
-    >
-      <Box
-      sx={{
-        width: '100%',
-        display: 'flex',
-        justifyContent: 'flex-end',
-        alignItems: 'center'
-      }}
-      >
-        <Typography variant='subtitle1' sx={{px: 1}}>{campaign?.name}</Typography>
-        <button className={campaign?.status}>
-          <p style={{textTransform: 'capitalize'}}>{campaign?.status}</p>
-        </button>
-      </Box>
+    <Box>
       <TopBar/>
       <Table/>
     </Box>

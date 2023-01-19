@@ -1,13 +1,13 @@
 import io
 import pandas
-import time
+from string import ascii_uppercase
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import FileUploadParser, MultiPartParser
 from core.models import Workspace
-from campaings.models import Campaign, Lead
-from .serializers import CampaignSerializer, LeadSerializer, CsvUploadSerializer
+from campaings.models import Campaign, Lead, Sequence, Variant
+from .serializers import CampaignSerializer, LeadSerializer, CsvUploadSerializer, SequenceSerializer, VariantSerializer
 from core.api.utils import EmailPagination 
 from .utils import LeadsPagination
 
@@ -51,7 +51,8 @@ class SearchInCampaignsAPIView(generics.ListAPIView):
     pagination_class = EmailPagination
     
     def get_queryset(self):
-        return Campaign.objects.filter(name__icontains=self.request.query_params.get('q')).order_by('-id')
+        workspace = Workspace.objects.get(user=self.request.user, is_active=True)
+        return Campaign.objects.filter(name__icontains=self.request.query_params.get('q'), workspace=workspace).order_by('-id')
 
 class LeadListCreateAPIView(generics.ListCreateAPIView):
     queryset = Lead.objects.all()
@@ -136,10 +137,10 @@ def createLeadsFromCsv(request,pk):
         
 @api_view(['POST'])
 def createLeadAPIView(request, pk):
-    campaign = Campaign.objects.get(pk=pk)
+    request.data['campaign'] = pk
     serializer = LeadSerializer(data=request.data)
     if serializer.is_valid():
-        serializer.save(campaign=campaign)
+        serializer.save()
         return Response(status=status.HTTP_201_CREATED)
     else:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -162,11 +163,11 @@ class filterLeadsAPIView(generics.ListAPIView):
 
 @api_view(['PUT'])
 def unsuscribeLeadsAPIView(request):
-    #try:
+    try:
         for lead in request.data:
             Lead.objects.filter(id=lead['id']).update(subscribe=False)
         return Response(status=status.HTTP_200_OK)
-    #except:
+    except:
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['DELETE'])
@@ -177,3 +178,42 @@ def deleteLeadsAPIView(request):
         return Response(status=status.HTTP_200_OK)
     except:
         return Response(status=status.HTTP_400_BAD_REQUEST)
+
+class SearchInLeadsAPIView(generics.ListAPIView):
+    queryset = Lead.objects.all()
+    serializer_class = LeadSerializer
+    pagination_class = LeadsPagination
+    
+    def get_queryset(self):
+        campaign = Campaign.objects.get(id=self.kwargs['pk'])
+        return Lead.objects.filter(email__icontains=self.request.query_params.get('q'), campaign=campaign).order_by('-id')
+
+
+class CreateSequenceAPIView(generics.ListCreateAPIView):
+    queryset = Sequence.objects.all()
+    serializer_class = SequenceSerializer
+
+    def get_queryset(self):
+        campaign = Campaign.objects.get(id=self.kwargs['pk'])
+        return Sequence.objects.filter(campaign=campaign)
+    
+    def perform_create(self, serializer):
+        campaign = Campaign.objects.get(id=self.kwargs['pk'])
+        name = f'Step{campaign.sequences.count() + 1}'
+        serializer.save(campaign=campaign, name=name)
+
+
+class CreateVariantAPIView(generics.ListCreateAPIView):
+    queryset = Variant.objects.all()
+    serializer_class = VariantSerializer
+
+    def get_queryset(self):
+        sequence = Sequence.objects.get(id=self.kwargs['pk'])
+        return Variant.objects.filter(sequence=sequence)
+    
+    def perform_create(self, serializer):
+        sequence = Sequence.objects.get(id=self.kwargs['pk'])
+        name = ascii_uppercase[sequence.variants.count()]
+        serializer.save(sequence=sequence, name=name)
+
+    

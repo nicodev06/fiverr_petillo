@@ -217,20 +217,36 @@ const CustomFieldDetails = ({field, i, defaultFields, customFields, samples}) =>
 const FieldsReview = ({handleClose, defaultFields, customFields, samples, setCurrentStep, formData}) => {
     
     const {setShowSnackBar, setSeverity, setMessage } = useContext(Context);
-    const { campaign } = useContext(CampaignContext);
+    const { campaign, setLeads, setNext } = useContext(CampaignContext);
 
     function createLeadsFromCsv(){
         fetch(`${process.env.REACT_APP_API_URL}/api/leads/create/${campaign.id}/`, {
             method: 'POST',
             headers: {
-                'X-CSRFToken': 'RcrvEBwq0vTqIzeemLziaRdIs1tnpu4f',
-                'Content-disposition': 'attachment; filename=upload.csv'
+                'X-CSRFToken': 'hQBH9g5qKNjm75igWxv1kEFTZ2XkPJcy',
+                'Content-type': 'attachment; filename=upload.csv'
             },
             body: formData
         })
             .then((response) => {
                 setShowSnackBar(true);
                 if (response.status === 201){
+                    fetch(`${process.env.REACT_APP_API_URL}/api/leads/${campaign.id}/`, {
+                        method: 'GET',
+                        headers: {
+                           'Content-disposition': 'application/json',
+                        },
+                        credentials: 'include'
+                    })
+                        .then((response) => {
+                            if (response.status === 200){
+                                response.json()
+                                    .then((data) => {
+                                        setLeads(data.results);
+                                        setNext(data.next);
+                                    })
+                            }
+                        })
                     setMessage('Leads added correctly!');
                     setSeverity('success');
                     handleClose();
@@ -392,7 +408,7 @@ const AddLeadManuallyActivator = ({handleClick}) => {
 
 const AddLeadManually = ({ handleClose }) => {
 
-    const { campaign } = useContext(CampaignContext);
+    const { campaign, setLeads, setNext } = useContext(CampaignContext);
     const [customFields, setCustomFields] = useState([['','']]);
     const [name, setName] = useState();
     const [lastName, setLastName] = useState();
@@ -407,7 +423,7 @@ const AddLeadManually = ({ handleClose }) => {
         fetch(`${process.env.REACT_APP_API_URL}/api/leads/create_manually/${campaign.id}/`, {
             method: 'POST',
             headers: {
-                'X-CSRFToken': 'RcrvEBwq0vTqIzeemLziaRdIs1tnpu4f',
+                'X-CSRFToken': 'hQBH9g5qKNjm75igWxv1kEFTZ2XkPJcy',
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
@@ -420,6 +436,22 @@ const AddLeadManually = ({ handleClose }) => {
         })
             .then((response) => {
                 if (response.status === 201){
+                    fetch(`${process.env.REACT_APP_API_URL}/api/leads/${campaign.id}/`, {
+                        method: 'GET',
+                        headers: {
+                           'Content-type': 'application/json',
+                        },
+                        credentials: 'include'
+                    })
+                        .then((response) => {
+                            if (response.status === 200){
+                                response.json()
+                                    .then((data) => {
+                                        setLeads(data.results);
+                                        setNext(data.next);
+                                    })
+                            }
+                    })
                     handleClose()
                 }
             })
@@ -814,9 +846,32 @@ const DeleteLeads = ({ handleClose }) => {
 
 const TopBar = () => {
   const {showSnackBar, severity, setShowSnackBar} = useContext(Context);
-  const [active, setActive] = useState(null);  
-  return (
-    <Box
+  const [active, setActive] = useState(null); 
+  const {setLeads, setNext, campaign} = useContext(CampaignContext);
+  const [query, setQuery] = useState('');
+  
+  function search(){
+    const url = `${process.env.REACT_APP_API_URL}${query.length > 0 ? '/api/leads_search/' + campaign.id + '/?q=' + query : '/api/leads/' + campaign.id + '/'}`
+    console.log(url); 
+    fetch(url, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+        .then((response) => {
+            if (response.status === 200){
+                response.json()
+                    .then((data) => {
+                        setLeads(data.results);
+                        setNext(data.next);
+                    })
+            }
+        })
+    }
+    return (
+        <Box
     sx={{
         display: 'flex',
         justifyContent: 'space-between',
@@ -831,8 +886,9 @@ const TopBar = () => {
                     sx={{flex: 1, ml: 1}}
                     placeholder="Search campaign..."
                     inputProps={{'type' : 'text'}}
+                    onChange={(e) => {setQuery(e.target.value)}}
                     />
-                    <IconButton type='button' sx={{ p: '10px' }}>
+                    <IconButton type='button' sx={{ p: '10px' }} onClick={search}>
                         <SearchIcon style={{color: 'var(--gray-color)'}}/>
                     </IconButton>
             </Box>
@@ -870,5 +926,5 @@ const TopBar = () => {
     </Box>
   )
 }
-
-export default TopBar
+ 
+    export default TopBar
