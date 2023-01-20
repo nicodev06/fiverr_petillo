@@ -212,13 +212,18 @@ const AddNew = ({ handleClose }) => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRFToken': 'RcrvEBwq0vTqIzeemLziaRdIs1tnpu4f'
+                    'X-CSRFToken': 'hQBH9g5qKNjm75igWxv1kEFTZ2XkPJcy'
                 },
                 credentials: 'include',
                 body: JSON.stringify(
                     {
                         name,
-                        status: 'draft'
+                        status: 'draft',
+                        senders: [],
+                        daily_campaign: 0,
+                        waiting_time: 0,
+                        unsubscribe: false,
+                        unsubscirbe_message: ''
                     }
                 )
             })

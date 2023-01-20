@@ -224,7 +224,7 @@ const FieldsReview = ({handleClose, defaultFields, customFields, samples, setCur
             method: 'POST',
             headers: {
                 'X-CSRFToken': 'hQBH9g5qKNjm75igWxv1kEFTZ2XkPJcy',
-                'Content-type': 'attachment; filename=upload.csv'
+                'Content-disposition': 'attachment; filename=upload.csv'
             },
             body: formData
         })
@@ -234,7 +234,7 @@ const FieldsReview = ({handleClose, defaultFields, customFields, samples, setCur
                     fetch(`${process.env.REACT_APP_API_URL}/api/leads/${campaign.id}/`, {
                         method: 'GET',
                         headers: {
-                           'Content-disposition': 'application/json',
+                           'Content-type': 'application/json',
                         },
                         credentials: 'include'
                     })
@@ -884,7 +884,7 @@ const TopBar = () => {
                 >
                     <InputBase
                     sx={{flex: 1, ml: 1}}
-                    placeholder="Search campaign..."
+                    placeholder="Search leads..."
                     inputProps={{'type' : 'text'}}
                     onChange={(e) => {setQuery(e.target.value)}}
                     />

@@ -31,7 +31,7 @@ class ListCreateCampaignAPIView(generics.ListCreateAPIView):
     
     def perform_create(self, serializer):
         workspace = Workspace.objects.get(user=self.request.user, is_active=True)
-        serializer.save(workspace=workspace)
+        serializer.save(workspace=workspace, leads_fields={})
 
 class RetrieveUpdateDestroyCampaignAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Campaign.objects.all()
@@ -114,6 +114,7 @@ def createLeadsFromCsv(request,pk):
     try:
         serializer = CsvUploadSerializer(data=request.data)
         if serializer.is_valid():
+            print('valid serializer')
             campaign = Campaign.objects.get(id=pk)
             default_fields = campaign.leads_fields['defaultFields']
             custom_fields = campaign.leads_fields['customFields']
@@ -130,9 +131,12 @@ def createLeadsFromCsv(request,pk):
                     print(custom)
                     lead = Lead(custom_fields=custom, campaign=campaign, **data_dict)
                     lead.save()
+            print('leads created')
             return Response(status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except:
-        return Response(status.HTTP_400_BAD_REQUEST)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
             
         
 @api_view(['POST'])
@@ -216,4 +220,23 @@ class CreateVariantAPIView(generics.ListCreateAPIView):
         name = ascii_uppercase[sequence.variants.count()]
         serializer.save(sequence=sequence, name=name)
 
+@api_view(['DELETE'])
+def deleteVariantAPIView(request, pk):
+    try:
+        variant = Variant.objects.get(pk=pk)
+        if variant.sequence.variants.count() == 1:
+            variant.sequence.delete()
+        else:
+            variant.delete()
+        return Response(status=status.HTTP_202_ACCEPTED)
+    except:
+        return Response(status=status.HTTP_404_BAD_REQUEST)
+
+@api_view(['PUT'])
+def updateWaitingTime(request, pk):
     
+        sequence = Sequence.objects.filter(pk=pk)
+        sequence.update(waiting_time=request.query_params.get('q'))
+        return Response({'data': 'correcly updated'}, status=status.HTTP_200_OK)
+    #except:
+        #return Response({'data': 'Something went wrong'}, status=status.HTTP_400_BAD_REQUEST)

@@ -1,4 +1,4 @@
-import React, {useContext} from 'react'
+import React, {useContext, useState} from 'react'
 
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -12,6 +12,7 @@ import { CampaignContext } from '../Layout'
 const SequenceDetails = ({ sequence, i }) => {
 
   const {campaign, sequences, setSequences, fetchSteps, addSequence } = useContext(CampaignContext);
+  const [waitingTime, setWaitingTime] = useState(sequence.waiting_time);
 
   function addVariant(){
     fetch(`${process.env.REACT_APP_API_URL}/api/variants/${sequence.id}/`, {
@@ -23,6 +24,22 @@ const SequenceDetails = ({ sequence, i }) => {
     })
       .then((response) => {
         if (response.status === 201){
+          fetchSteps(campaign);
+        }
+      })
+  }
+
+  function updateWaitingTime(e){
+    e.preventDefault()
+    fetch(`${process.env.REACT_APP_API_URL}/api/update_waiting_time/${sequence.id}/?q=${waitingTime}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': 'hQBH9g5qKNjm75igWxv1kEFTZ2XkPJcy'
+      },
+    })
+      .then((response) => {
+        if (response.status === 200){
           fetchSteps(campaign);
         }
       })
@@ -55,7 +72,13 @@ const SequenceDetails = ({ sequence, i }) => {
             <button style={{backgroundColor: sequences.length - 1 === i ? '#77ed91': 'var(--light-gray-color)'}} disabled={sequences.length - 1 !== i} onClick={addSequence}>+ Add Step</button>
             <Stack spacing={0.5} direction='row' sx={{alignItems: 'center'}}>
               <Typography variant='subtitle2'>Wait</Typography>
-              <TextField sx={{width: '40px'}}  inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }} />
+              <form onSubmit={(e) => {updateWaitingTime(e)}}>
+                <input type='number' value={waitingTime} style={{width: '40px', height: '30px', borderRadius: '10px', border: 'none'}} onChange={(e) => {
+                  setWaitingTime(e.target.value)
+                }
+                }
+                  />
+              </form>
               <Typography variant='subtitle2'>Days, then</Typography>
             </Stack> 
           </Stack>

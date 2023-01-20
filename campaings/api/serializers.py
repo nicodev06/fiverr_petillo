@@ -9,7 +9,7 @@ class CampaignSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Campaign
-        fields = ['id', 'name', 'created_at', 'status', 'workspace', 'days_since_creation', 'leads_fields']
+        fields = ['id', 'name', 'created_at', 'status', 'workspace', 'days_since_creation', 'senders', 'waiting_time', 'daily_campaign', 'unsubscribe', 'unsubscribe_message', 'leads_fields']
         read_only_fields = ['workspace', 'created_at', 'leads_fields']
 
     def get_days_since_creation(self, obj):
@@ -38,7 +38,7 @@ class SequenceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Sequence
-        fields = ['id', 'campaign', 'name', 'variants']
-        read_only_fields = ['campaign', 'name', 'variants']
+        fields = ['id', 'campaign', 'name', 'variants', 'waiting_time']
+        read_only_fields = ['campaign', 'name', 'variants', 'waiting_time']
 
 

@@ -81,14 +81,19 @@ const RenameCampaign = ({ campaign, handleClose }) => {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRFToken': 'RcrvEBwq0vTqIzeemLziaRdIs1tnpu4f'
+                    'X-CSRFToken': 'hQBH9g5qKNjm75igWxv1kEFTZ2XkPJcy'
                 },
                 credentials: 'include',
                 body: JSON.stringify(
                     {
                         id: campaign.id,
                         name,
-                        status: campaign.status
+                        status: campaign.status,
+                        senders: campaign.senders,
+                        daily_campaign: campaign.daily_campaign,
+                        waiting_time: campaign.waiting_time,
+                        unsubscribe: campaign.unsubscribe,
+                        unsubscirbe_message: campaign.unsubscribe_message
                     }
                 )
         })
@@ -141,7 +146,7 @@ const DeleteCampaign = ({campaign, handleClose}) => {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': 'RcrvEBwq0vTqIzeemLziaRdIs1tnpu4f'
+                'X-CSRFToken': 'hQBH9g5qKNjm75igWxv1kEFTZ2XkPJcy'
             },
             credentials: 'include',
     })
@@ -236,14 +241,19 @@ const CampaignDetails = ({ campaign }) => {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': 'RcrvEBwq0vTqIzeemLziaRdIs1tnpu4f'
+            'X-CSRFToken': 'hQBH9g5qKNjm75igWxv1kEFTZ2XkPJcy'
         },
         credentials: 'include',
         body: JSON.stringify(
             {
                 id: campaign.id,
                 name: campaign.name,
-                status
+                status,
+                senders: campaign.senders,
+                daily_campaign: campaign.daily_campaign,
+                waiting_time: campaign.waiting_time,
+                unsubscribe: campaign.unsubscribe,
+                unsubscirbe_message: campaign.unsubscribe_message
             }
         )
     })

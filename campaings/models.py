@@ -1,5 +1,5 @@
 from django.db import models
-from core.models import Workspace
+from core.models import Workspace, GenericSender
 
 class Campaign(models.Model):
     name = models.CharField(max_length=248)
@@ -7,6 +7,11 @@ class Campaign(models.Model):
     status = models.CharField(max_length=6, blank=True, default='draft')
     workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE, related_name='campaigns', default=1)
     leads_fields = models.JSONField(blank=True, null=True, default='null')
+    senders = models.ManyToManyField(GenericSender, related_name='campaigns', blank=True, null=True)
+    daily_campaign = models.IntegerField(blank=True, null=True)
+    waiting_time = models.IntegerField(blank=True, null=True)
+    unsubscribe = models.BooleanField(blank=True, default=False)
+    unsubscribe_message = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return self.name

@@ -79,6 +79,20 @@ const Layout = () => {
   useEffect(() => {
     fetchFromAPI(`/api/campaign/${id}/`, setCampaign);
     fetchFromAPI(`/api/sequences/${id}/`, setSequences);
+    fetch(`${process.env.REACT_APP_API_URL}/api/leads/${id}/`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: 'include'
+    })
+      .then((response) => {
+        response.json()
+          .then((data) => {
+            setLeads(data.results);
+            setNext(data.next);
+          })
+      })
   }, [id])
 
   useEffect(() => {
