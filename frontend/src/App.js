@@ -10,6 +10,7 @@ import Layout from './components/features/campaigns/details/Layout';
 import LeadsPage from './components/features/campaigns/details/leads/LeadsPage';
 import SequencesPage from './components/features/campaigns/details/sequences/SequencesPage';
 import SettingsPage from './components/features/campaigns/details/settings/SettingsPage';
+import SchedulePage from './components/features/campaigns/details/schedule/SchedulePage';
 
 import {
   BrowserRouter, 
@@ -34,7 +35,7 @@ function App() {
                   <Route path='insight'/>
                   <Route path='sequences' element={<SequencesPage/>}/>
                   <Route path='leads' element={<LeadsPage/>}/>
-                  <Route path='schedule'/>
+                  <Route path='schedule' element={<SchedulePage/>}/>
                   <Route path='settings' element={<SettingsPage/>}/>
                 </Route>
               </Routes>

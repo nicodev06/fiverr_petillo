@@ -13,6 +13,8 @@ class Campaign(models.Model):
     unsubscribe = models.BooleanField(blank=True, default=False)
     unsubscribe_message = models.TextField(blank=True, null=True)
     track_openings = models.BooleanField(blank=True, default=False)
+    start_date = models.DateTimeField(blank=True, null=True)
+    end_date = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
         return self.name

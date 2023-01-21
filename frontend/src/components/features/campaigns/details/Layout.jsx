@@ -30,6 +30,13 @@ const Layout = () => {
   const [trackOpenings, setTrackOpenings] = useState(null);
   const [unsubscribe, setUnsubscribe] = useState(null);
   const [customMessage, setCustomMessage] = useState(null);
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const [startTime, setStartTime] = useState('0:00');
+  const [endTime, setEndTime] = useState('23:30');
+  const [timeZone, setTimeZone] = useState('(UTC-06:00) Central America');
+  const [offset, setOffset] = useState('-6');
+
 
   function addSequence(){
     fetch(`${process.env.REACT_APP_API_URL}/api/sequences/${campaign.id}/`, {
@@ -149,7 +156,19 @@ const Layout = () => {
         unsubscribe,
         setUnsubscribe,
         customMessage,
-        setCustomMessage
+        setCustomMessage,
+        startDate,
+        setStartDate,
+        endDate,
+        setEndDate,
+        startTime,
+        setStartTime,
+        endTime,
+        setEndTime,
+        timeZone,
+        setTimeZone,
+        offset,
+        setOffset
     }}>
         <Box
     sx={{
