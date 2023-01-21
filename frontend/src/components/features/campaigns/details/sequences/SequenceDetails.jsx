@@ -20,7 +20,8 @@ const SequenceDetails = ({ sequence, i }) => {
       headers: {
           'Content-Type': 'application/json',
           'X-CSRFToken': 'hQBH9g5qKNjm75igWxv1kEFTZ2XkPJcy'
-      }
+      },
+      credentials: 'include'
     })
       .then((response) => {
         if (response.status === 201){

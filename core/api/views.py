@@ -11,7 +11,7 @@ from rest_framework.decorators import api_view
 from django.http import Http404
 
 from django.contrib.auth.models import AnonymousUser
-from .serializers import UserSerializer, WorkspaceSerializer, GenericSenderSerializer
+from .serializers import UserSerializer, WorkspaceSerializer, GenericSenderSerializer, BasicGenericSenderSerializer
 
 from core.models import GenericSender, Workspace
 
@@ -137,4 +137,11 @@ class SearchGenericSenderAPIView(generics.ListAPIView):
     def get_queryset(self):
         return GenericSender.objects.filter(email__icontains=self.request.query_params.get('q')).order_by('-id')
 
-    
+
+class BasicGenericSenderListAPIView(generics.ListAPIView):
+    queryset = GenericSender.objects.all()
+    serializer_class = BasicGenericSenderSerializer
+
+    def get_queryset(self):
+        workspace = Workspace.objects.get(user=self.request.user, is_active=True)
+        return GenericSender.objects.filter(workspace=workspace).order_by('-id')  

@@ -12,6 +12,7 @@ class Campaign(models.Model):
     waiting_time = models.IntegerField(blank=True, null=True)
     unsubscribe = models.BooleanField(blank=True, default=False)
     unsubscribe_message = models.TextField(blank=True, null=True)
+    track_openings = models.BooleanField(blank=True, default=False)
 
     def __str__(self):
         return self.name

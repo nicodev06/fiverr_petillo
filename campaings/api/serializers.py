@@ -1,15 +1,17 @@
 from rest_framework import serializers
 from django.utils.timezone import now
 from campaings.models import Campaign, Lead, Sequence, Variant
+from core.api.serializers import BasicGenericSenderSerializer
 
 
 class CampaignSerializer(serializers.ModelSerializer):
 
     days_since_creation = serializers.SerializerMethodField()
+    senders = BasicGenericSenderSerializer(many=True, read_only=True)
 
     class Meta:
         model = Campaign
-        fields = ['id', 'name', 'created_at', 'status', 'workspace', 'days_since_creation', 'senders', 'waiting_time', 'daily_campaign', 'unsubscribe', 'unsubscribe_message', 'leads_fields']
+        fields = ['id', 'name', 'created_at', 'status', 'workspace', 'days_since_creation', 'senders', 'waiting_time', 'daily_campaign', 'unsubscribe', 'unsubscribe_message', 'leads_fields', 'track_openings']
         read_only_fields = ['workspace', 'created_at', 'leads_fields']
 
     def get_days_since_creation(self, obj):

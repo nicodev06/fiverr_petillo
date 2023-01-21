@@ -1,6 +1,9 @@
 from rest_framework import serializers
 from core.models import GenericSender, Workspace
 
+class BasicGenericSenderSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    email = serializers.EmailField()
 
 class UserSerializer(serializers.Serializer):
     username = serializers.CharField()

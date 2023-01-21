@@ -5,7 +5,7 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import FileUploadParser, MultiPartParser
-from core.models import Workspace
+from core.models import Workspace, GenericSender
 from campaings.models import Campaign, Lead, Sequence, Variant
 from .serializers import CampaignSerializer, LeadSerializer, CsvUploadSerializer, SequenceSerializer, VariantSerializer
 from core.api.utils import EmailPagination 
@@ -114,7 +114,6 @@ def createLeadsFromCsv(request,pk):
     try:
         serializer = CsvUploadSerializer(data=request.data)
         if serializer.is_valid():
-            print('valid serializer')
             campaign = Campaign.objects.get(id=pk)
             default_fields = campaign.leads_fields['defaultFields']
             custom_fields = campaign.leads_fields['customFields']
@@ -131,7 +130,6 @@ def createLeadsFromCsv(request,pk):
                     print(custom)
                     lead = Lead(custom_fields=custom, campaign=campaign, **data_dict)
                     lead.save()
-            print('leads created')
             return Response(status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -234,9 +232,19 @@ def deleteVariantAPIView(request, pk):
 
 @api_view(['PUT'])
 def updateWaitingTime(request, pk):
-    
+    try:
         sequence = Sequence.objects.filter(pk=pk)
         sequence.update(waiting_time=request.query_params.get('q'))
         return Response({'data': 'correcly updated'}, status=status.HTTP_200_OK)
-    #except:
-        #return Response({'data': 'Something went wrong'}, status=status.HTTP_400_BAD_REQUEST)
+    except:
+        return Response({'data': 'Something went wrong'}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['PUT'])
+def addSenderToCampaign(request, pk):
+    try:
+        campaign = Campaign.objects.get(pk=pk)
+        sender = GenericSender.objects.get(pk=request.query_params.get('q'))
+        campaign.senders.add(sender)
+        return Response(status=status.HTTP_200_OK)
+    except:
+        return Response(status.status.HTTP_400_BAD_REQUEST)

@@ -9,6 +9,7 @@ import CampaignPage from './components/features/campaigns/CampaignPage';
 import Layout from './components/features/campaigns/details/Layout';
 import LeadsPage from './components/features/campaigns/details/leads/LeadsPage';
 import SequencesPage from './components/features/campaigns/details/sequences/SequencesPage';
+import SettingsPage from './components/features/campaigns/details/settings/SettingsPage';
 
 import {
   BrowserRouter, 
@@ -34,7 +35,7 @@ function App() {
                   <Route path='sequences' element={<SequencesPage/>}/>
                   <Route path='leads' element={<LeadsPage/>}/>
                   <Route path='schedule'/>
-                  <Route path='settings'/>
+                  <Route path='settings' element={<SettingsPage/>}/>
                 </Route>
               </Routes>
             </div>

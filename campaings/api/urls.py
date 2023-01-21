@@ -17,5 +17,6 @@ urlpatterns = [
     path('sequences/<int:pk>/', views.CreateSequenceAPIView.as_view(), name='sequences'),
     path('variants/<int:pk>/', views.CreateVariantAPIView.as_view(), name='variants'),
     path('delete_variant/<int:pk>/', views.deleteVariantAPIView, name='delete variant'),
-    path('update_waiting_time/<int:pk>/', views.updateWaitingTime, name='update waiting time')
+    path('update_waiting_time/<int:pk>/', views.updateWaitingTime, name='update waiting time'),
+    path('add_sender_to_campaign/<int:pk>/', views.addSenderToCampaign, name='add sender to campaign')
 ]

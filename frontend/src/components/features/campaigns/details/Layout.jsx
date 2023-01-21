@@ -25,6 +25,11 @@ const Layout = () => {
   const [next, setNext] = useState(null);
   const [selectAll, setSelectAll] = useState(false);
   const [sequences, setSequences] = useState([]);
+  const [dailyCampaign, setDailyCampaign] = useState(null);
+  const [waitingTime, setWaitingTime] = useState(null);
+  const [trackOpenings, setTrackOpenings] = useState(null);
+  const [unsubscribe, setUnsubscribe] = useState(null);
+  const [customMessage, setCustomMessage] = useState(null);
 
   function addSequence(){
     fetch(`${process.env.REACT_APP_API_URL}/api/sequences/${campaign.id}/`, {
@@ -77,7 +82,26 @@ const Layout = () => {
   }, [pathname])
 
   useEffect(() => {
-    fetchFromAPI(`/api/campaign/${id}/`, setCampaign);
+    fetch(`${process.env.REACT_APP_API_URL}/api/campaign/${id}/`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: 'include',
+    })
+      .then((response) => {
+        if (response.status === 200){
+          response.json()
+            .then((data) => {
+              setCampaign(data);
+              setDailyCampaign(data.daily_campaign);
+              setWaitingTime(data.waiting_time);
+              setTrackOpenings(data.track_openings);
+              setUnsubscribe(data.unsubscribe);
+              setCustomMessage(data.unsubscribe_message);
+            })
+        }
+      })
     fetchFromAPI(`/api/sequences/${id}/`, setSequences);
     fetch(`${process.env.REACT_APP_API_URL}/api/leads/${id}/`, {
       method: 'GET',
@@ -103,6 +127,7 @@ const Layout = () => {
     
     <CampaignContext.Provider value={{
         campaign,
+        setCampaign,
         leads,
         setLeads,
         next,
@@ -114,12 +139,22 @@ const Layout = () => {
         sequences,
         setSequences,
         fetchSteps,
-        addSequence
+        addSequence,
+        dailyCampaign,
+        setDailyCampaign,
+        waitingTime,
+        setWaitingTime,
+        setTrackOpenings,
+        trackOpenings,
+        unsubscribe,
+        setUnsubscribe,
+        customMessage,
+        setCustomMessage
     }}>
         <Box
     sx={{
         mx: '4vw',
-        my: '6vh'
+        my: '6vh',
     }}
     >
         <Grid container spacing={2}>
