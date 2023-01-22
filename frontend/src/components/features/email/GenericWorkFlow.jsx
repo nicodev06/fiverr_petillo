@@ -151,7 +151,7 @@ const GenericWorflowSecondStep = ({ setCurrentStep }) => {
                 credentials: 'include',
                 headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': 'RcrvEBwq0vTqIzeemLziaRdIs1tnpu4f'
+                'X-CSRFToken': 'hQBH9g5qKNjm75igWxv1kEFTZ2XkPJcy'
                 },
                 body: JSON.stringify({
                     host: imapHost,
@@ -238,7 +238,7 @@ const GenericWorflowThirdStep = ({ setCurrentStep, handleClose }) => {
             credentials: 'include',
                 headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': 'RcrvEBwq0vTqIzeemLziaRdIs1tnpu4f'
+                'X-CSRFToken': 'hQBH9g5qKNjm75igWxv1kEFTZ2XkPJcy'
             },
             body: JSON.stringify({
                 first_name: firstName,
@@ -252,7 +252,9 @@ const GenericWorflowThirdStep = ({ setCurrentStep, handleClose }) => {
                 smtp_host: smtpHost,
                 reply_to: replyTo,
                 daily_campaign: 0,
-                sending_limits: 0
+                sending_limits: 0,
+                imap_port: imapPort,
+                smtp_port: smtpPort
             })
         })
             .then((response) => {
@@ -277,7 +279,7 @@ const GenericWorflowThirdStep = ({ setCurrentStep, handleClose }) => {
                 credentials: 'include',
                 headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': 'RcrvEBwq0vTqIzeemLziaRdIs1tnpu4f'
+                'X-CSRFToken': 'hQBH9g5qKNjm75igWxv1kEFTZ2XkPJcy'
                 },
                 body: JSON.stringify({
                     host: smtpHost,

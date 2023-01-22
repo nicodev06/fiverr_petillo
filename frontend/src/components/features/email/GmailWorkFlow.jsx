@@ -79,7 +79,7 @@ const GmailWorkFlowForm = ({setCurrentStep, handleClose}) => {
                 credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRFToken': 'RcrvEBwq0vTqIzeemLziaRdIs1tnpu4f'
+                    'X-CSRFToken': 'hQBH9g5qKNjm75igWxv1kEFTZ2XkPJcy'
                 },
                 body: JSON.stringify({
                     first_name: firstName,
@@ -92,7 +92,9 @@ const GmailWorkFlowForm = ({setCurrentStep, handleClose}) => {
                     smtp_password: password,
                     smtp_host: 'smtp.gmail.com',
                     daily_campaign: 0,
-                    sending_limits: 0
+                    sending_limits: 0,
+                    imap_port: 993,
+                    smtp_port: 587
                 })
             }).then((response) => {
                 if (response.status === 201){

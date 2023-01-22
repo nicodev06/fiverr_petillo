@@ -1,9 +1,12 @@
-import React, {useState, useContext} from 'react'
+import React, {useContext} from 'react'
 
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
+import Snackbar  from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
+import CheckBox from '@mui/material/Checkbox';
 
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -12,9 +15,11 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import BasicDialog from '../../../../BasicDialog';
 
 import { CampaignContext } from '../Layout';
+import { Context } from '../../../../../utils/context';
 
 import times from './daytime';
 import timezones from './timezones';
+import allowed_days from './dayweek';
 
 
 const Calendar = ({date, setter}) => {
@@ -117,7 +122,8 @@ const EndTimeActivator = ({ handleClick }) => {
         <Box
             sx={{
                 borderRadius: '10px',
-                border: '1px solid var(--light-gray-color)'
+                border: '1px solid var(--light-gray-color)',
+                backgroundColor: 'var(--light-gray-color)'
             }}
             onClick={handleClick}
             >
@@ -196,9 +202,70 @@ const TimeZones = ({ handleClose }) => {
 }
 
 
+const SetDays = () => {
+
+    const { allowedDays, setAllowedDays } = useContext(CampaignContext);
+
+    return (
+        <Box>
+            {allowed_days.map((day) => 
+                <Stack key={day} spacing={1} direction='row'>
+                    <CheckBox checked={allowedDays.includes(day.num)} onChange={(e) => {
+                        if (e.target.checked){
+                            setAllowedDays([...allowedDays, day.num])
+                        } else {
+                            setAllowedDays(allowedDays.filter((item) => item !== day.num))
+                        }
+                        console.log(allowedDays);
+                    }}/>
+                    <Typography>{day.day}</Typography>
+                </Stack>
+            )}
+        </Box>
+    )
+}
+
+
 const SchedulePage = () => {
 
-  const {startDate, setStartDate, endDate, setEndDate, startTime, setStartTime, endTime, setEndTime} = useContext(CampaignContext);
+  const {campaign, setCampaign, startDate, setStartDate, endDate, setEndDate, startTime, setStartTime, endTime, setEndTime, timeZone, allowedDays, setAllowedDays} = useContext(CampaignContext);
+  const {setShowSnackBar, setMessage, setSeverity, showSnackBar, message, severity} = useContext(Context);
+
+  function save(){
+    const start = startDate ? `${startDate.format('YYYY-MM-DD')}T${startTime}${timeZone[4] === ')' ? '+00Z' : timeZone.substring(4,10)}` : null;
+    const end = endDate ? `${endDate.format('YYYY-MM-DD')}T${endTime}${timeZone[4] === ')' ? '+00Z' : timeZone.substring(4,10)}`: null;
+    if (startDate){
+        fetch(`${process.env.REACT_APP_API_URL}/api/campaign/${campaign.id}/`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': 'hQBH9g5qKNjm75igWxv1kEFTZ2XkPJcy'
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+                name: campaign.name,
+                start_date: start,
+                end_date: end,
+                status: 'active',
+                allowed_days: allowedDays
+            })
+        })
+            .then((response) => {
+                setShowSnackBar(true);
+                if (response.status === 200){
+                    setMessage(`Your campaign will start at ${startDate.format('YYYY-MM-DD')}`);
+                    setSeverity('success');
+                    response.json()
+                        .then((data) => {
+                            setCampaign(data);
+                        })
+                } else {
+                    setMessage('Something went wrong');
+                    setSeverity('danger');
+                }
+        })
+    }
+  }
 
   return (
     <Box
@@ -206,39 +273,80 @@ const SchedulePage = () => {
         mt: '3vh'
     }}
     >
-        <Typography variant='subtitle1'>Timing and Date</Typography>
-        <hr/>
-        <Stack spacing={1} direction='row'>
-            <Stack spacing={2}>
-                <Typography variant='subtitle1'>Start</Typography>
-                <BasicDialog Activator={StartTimeActivator}>
-                    <StartDayTimes/>
-                </BasicDialog>
-                <BasicDialog Activator={StartDateActivator}>
-                    <Calendar date={startDate} setter={setStartDate}/>
-                </BasicDialog>
-            </Stack>
-            <Stack spacing={2}>
-                <Typography variant='subtitle1'>End</Typography>
-                <BasicDialog Activator={EndTimeActivator}>
-                    <EndDayTimes/>
-                </BasicDialog>
-                <BasicDialog Activator={EndDateActivator}>
-                    <Calendar date={endDate} setter={setEndDate}/>
-                </BasicDialog>
-            </Stack>
-        </Stack>
         <Box
         sx={{
-            textAlign: 'center',
-            mt: 1,
-            width: '325px'
+            display: 'flex',
+            justifyContent: 'flex-end',
+            my: 1
         }}
         >
-            <BasicDialog Activator={TimeZonesActivator}>
-                <TimeZones/>
-            </BasicDialog>
+            <button style={{backgroundColor: 'var(--light-blue-color)'}} onClick={save}>
+                <p>Save</p>
+            </button>
         </Box>
+        <Stack direction='row' spacing={5}>
+            <Box>
+                <Box
+                sx={{
+                    borderBottom: '1px solid var(--light-gray-color)',
+                    my: 1
+                }}
+                >
+                    <Typography variant='subtitle1'>Days</Typography>
+                </Box>
+                <SetDays/>
+            </Box>
+            <Box>
+                <Box
+                sx={{
+                    borderBottom: '1px solid var(--light-gray-color)',
+                    my: 1
+                }}
+                >
+                    <Typography variant='subtitle1'>Timing and Date</Typography>
+                </Box>
+                <Stack spacing={1} direction='row'>
+                    <Stack spacing={2}>
+                        <Typography variant='subtitle1'>Start</Typography>
+                        <BasicDialog Activator={StartTimeActivator}>
+                            <StartDayTimes/>
+                        </BasicDialog>
+                        <BasicDialog Activator={StartDateActivator}>
+                            <Calendar date={startDate} setter={setStartDate}/>
+                        </BasicDialog>
+                    </Stack>
+                    <Stack spacing={2}>
+                        <Typography variant='subtitle1'>End</Typography>
+                        <BasicDialog Activator={EndTimeActivator}>
+                            <EndDayTimes/>
+                        </BasicDialog>
+                        <BasicDialog Activator={EndDateActivator}>
+                            <Calendar date={endDate} setter={setEndDate}/>
+                        </BasicDialog>
+                    </Stack>
+                </Stack>
+                <Box
+                sx={{
+                    textAlign: 'center',
+                    mt: 1,
+                    width: '325px'
+                }}
+                >
+                    <BasicDialog Activator={TimeZonesActivator}>
+                        <TimeZones/>
+                    </BasicDialog>
+                </Box>
+            </Box>
+        </Stack>
+        <Snackbar
+        open={showSnackBar}
+        autoHideDuration={6000}
+        onClose={() => {setShowSnackBar(false)}}
+        >
+            <Alert severity={severity} sx={{width: '100%'}}>
+                {message}
+            </Alert>
+        </Snackbar>
     </Box>
   )
 }

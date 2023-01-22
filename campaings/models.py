@@ -15,6 +15,7 @@ class Campaign(models.Model):
     track_openings = models.BooleanField(blank=True, default=False)
     start_date = models.DateTimeField(blank=True, null=True)
     end_date = models.DateTimeField(blank=True, null=True)
+    allowed_days = models.JSONField(blank=True, null=True, default='null')
 
     def __str__(self):
         return self.name

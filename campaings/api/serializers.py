@@ -11,7 +11,7 @@ class CampaignSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Campaign
-        fields = ['id', 'name', 'created_at', 'status', 'workspace', 'days_since_creation', 'senders', 'waiting_time', 'daily_campaign', 'unsubscribe', 'unsubscribe_message', 'leads_fields', 'track_openings', 'start_date', 'end_date']
+        fields = ['id', 'name', 'created_at', 'status', 'workspace', 'days_since_creation', 'senders', 'waiting_time', 'daily_campaign', 'unsubscribe', 'unsubscribe_message', 'leads_fields', 'track_openings', 'start_date', 'end_date', 'allowed_days']
         read_only_fields = ['workspace', 'created_at', 'leads_fields']
 
     def get_days_since_creation(self, obj):

@@ -36,6 +36,7 @@ const Layout = () => {
   const [endTime, setEndTime] = useState('23:30');
   const [timeZone, setTimeZone] = useState('(UTC-06:00) Central America');
   const [offset, setOffset] = useState('-6');
+  const [allowedDays, setAllowedDays] = useState([]);
 
 
   function addSequence(){
@@ -106,6 +107,7 @@ const Layout = () => {
               setTrackOpenings(data.track_openings);
               setUnsubscribe(data.unsubscribe);
               setCustomMessage(data.unsubscribe_message);
+              setAllowedDays(data.allowed_days === 'null' ? [] : data.allowed_days);
             })
         }
       })
@@ -168,7 +170,9 @@ const Layout = () => {
         timeZone,
         setTimeZone,
         offset,
-        setOffset
+        setOffset,
+        allowedDays,
+        setAllowedDays
     }}>
         <Box
     sx={{
