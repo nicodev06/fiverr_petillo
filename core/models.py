@@ -30,6 +30,8 @@ class GenericSender(models.Model):
     dmarc = models.BooleanField(null=True, blank=True, default=False)
     active = models.BooleanField(default=True)
     workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE, related_name="generic_senders", default=0)
+    today = models.DateField(blank=True, null=True)
+    sended_today = models.IntegerField(blank=True, default=True)
 
     def __str__(self):
         return self.email

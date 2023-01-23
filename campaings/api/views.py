@@ -1,6 +1,8 @@
 import io
 import pandas
 from string import ascii_uppercase
+import datetime
+from datetime import timedelta
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, parser_classes
@@ -10,6 +12,8 @@ from campaings.models import Campaign, Lead, Sequence, Variant
 from .serializers import CampaignSerializer, LeadSerializer, CsvUploadSerializer, SequenceSerializer, VariantSerializer
 from core.api.utils import EmailPagination 
 from .utils import LeadsPagination
+
+from ..tasks import send_mail
 
 class ListCreateCampaignAPIView(generics.ListCreateAPIView):
     queryset = Campaign.objects.all()
@@ -36,6 +40,13 @@ class ListCreateCampaignAPIView(generics.ListCreateAPIView):
 class RetrieveUpdateDestroyCampaignAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Campaign.objects.all()
     serializer_class = CampaignSerializer
+
+    def perform_update(self, serializer):
+        serializer.save()
+        if serializer.validated_data['status'] == 'active':
+            campaign = Campaign.objects.get(id=self.kwargs['pk'])
+            tomorrow = datetime.datetime.utcnow() + timedelta(minutes=1)
+            send_mail.apply_async((), eta=tomorrow)
 
 class FilterCampaignsAPIView(generics.ListAPIView):
     queryset = Campaign.objects.all()
@@ -111,7 +122,7 @@ def updateLeadsFieldsAPIView(request, pk):
 
 @api_view(['POST'])
 def createLeadsFromCsv(request,pk):
-    try:
+    
         serializer = CsvUploadSerializer(data=request.data)
         if serializer.is_valid():
             campaign = Campaign.objects.get(id=pk)
@@ -130,10 +141,16 @@ def createLeadsFromCsv(request,pk):
                     print(custom)
                     lead = Lead(custom_fields=custom, campaign=campaign, **data_dict)
                     lead.save()
+            total_senders_count = campaign.senders.count()
+            if total_senders_count != 0:
+                leads_count = Lead.objects.filter(campaign=campaign).count()
+                email_per_sender = leads_count // total_senders_count
+                campaign.email_per_sender = email_per_sender
+                campaign.save()
             return Response(status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    except:
+    #except:
         return Response(status=status.HTTP_400_BAD_REQUEST)
             
         
@@ -143,6 +160,13 @@ def createLeadAPIView(request, pk):
     serializer = LeadSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save()
+        campaign = Campaign.objects.get(pk=pk)
+        total_senders_count = campaign.senders.count()
+        if total_senders_count != 0:
+            leads_count = Lead.objects.filter(campaign=campaign).count()
+            email_per_sender = leads_count // total_senders_count
+            campaign.email_per_sender = email_per_sender
+            campaign.save()
         return Response(status=status.HTTP_201_CREATED)
     else:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

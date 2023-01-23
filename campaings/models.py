@@ -16,6 +16,9 @@ class Campaign(models.Model):
     start_date = models.DateTimeField(blank=True, null=True)
     end_date = models.DateTimeField(blank=True, null=True)
     allowed_days = models.JSONField(blank=True, null=True, default='null')
+    email_per_sender = models.IntegerField(blank=True, null=True)
+    today = models.DateField(blank=True, null=True)
+    sended_today = models.IntegerField(blank=True, null=True)
 
     def __str__(self):
         return self.name
@@ -36,6 +39,8 @@ class Lead(models.Model):
     email_opened = models.BooleanField(blank=True, default=False)
     replied = models.BooleanField(blank=True, default=False)
     subscribe = models.BooleanField(blank=True, default=True)
+    sended_by = models.ForeignKey(GenericSender, on_delete=models.CASCADE, related_name='leads', blank=True, null=True)
+    email_ids = models.JSONField(blank=True, default=[])
 
     def __str__(self):
         return self.email
@@ -44,6 +49,7 @@ class Sequence(models.Model):
     name = models.CharField(max_length=244)
     campaign = models.ForeignKey(Campaign, on_delete=models.CASCADE, related_name='sequences', null=True)
     waiting_time = models.IntegerField(blank=True, null=True);
+    current = models.BooleanField(blank=True, default=False)
 
     def __str__(self):
         return self.name

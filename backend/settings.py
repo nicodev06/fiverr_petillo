@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'core',
-    'campaings'
+    'campaings',
 ]
 
 MIDDLEWARE = [
@@ -142,3 +142,5 @@ from corsheaders.defaults import default_headers
 CORS_ALLOW_HEADERS = list(default_headers) + [
     'content-disposition'
 ]
+
+BROKER_URL = 'django://'

@@ -92,7 +92,7 @@ const UpdateSettings = ({sender, handleClose}) => {
       credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
-        'X-CSRFToken': 'RcrvEBwq0vTqIzeemLziaRdIs1tnpu4f'
+        'X-CSRFToken': 'hQBH9g5qKNjm75igWxv1kEFTZ2XkPJcy'
       },
       body: JSON.stringify({
         id: sender.id,
