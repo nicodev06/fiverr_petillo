@@ -18,7 +18,7 @@ class Campaign(models.Model):
     allowed_days = models.JSONField(blank=True, null=True, default='null')
     email_per_sender = models.IntegerField(blank=True, null=True)
     today = models.DateField(blank=True, null=True)
-    sended_today = models.IntegerField(blank=True, null=True)
+    sended_today = models.IntegerField(blank=True, default=0)
 
     def __str__(self):
         return self.name
@@ -41,6 +41,7 @@ class Lead(models.Model):
     subscribe = models.BooleanField(blank=True, default=True)
     sended_by = models.ForeignKey(GenericSender, on_delete=models.CASCADE, related_name='leads', blank=True, null=True)
     email_ids = models.JSONField(blank=True, default=[])
+    already_sended = models.BooleanField(blank=True, default=False)
 
     def __str__(self):
         return self.email

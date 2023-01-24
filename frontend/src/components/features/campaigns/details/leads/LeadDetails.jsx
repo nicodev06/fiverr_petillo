@@ -30,7 +30,7 @@ const LeadDetails = ({ lead }) => {
         borderBottom: '1px solid var(--light-gray-color)'
     }}
     >
-        <Grid container spacing={3} sx={{py: 1}}>
+        <Grid container spacing={6} sx={{py: 1}}>
             <Grid item xs={3}>
                 <Box
                 >
@@ -43,15 +43,18 @@ const LeadDetails = ({ lead }) => {
                     </Stack>
                 </Box>
             </Grid>
-            <Grid item xs={3} sx={{flexWrap: 'wrap'}}>
-                {(lead.email_opened && lead.replied) && <button style={{backgroundColor: '#77ED91'}}>Completed</button> }
-                <button
-                style={{
-                    backgroundColor: lead.email_opened ? '#D461F1' : '#ACAEAD',
-                    margin: '5px'
-                }}
-                >{lead.email_opened ? 'Email Opened' : 'Email not opened'}</button>
-                {lead.bounced && <button style={{backgroundColor: '#FD6565'}}>Bounced</button>}
+            <Grid item xs={2.5} sx={{flexWrap: 'wrap'}}>
+                <Stack spacing={0.5} sx={{alignItems: 'center'}}>
+                    {(lead.email_opened && lead.replied) && <button style={{backgroundColor: '#77ED91'}}>Completed</button> }
+                    <button
+                    style={{
+                        backgroundColor: lead.email_opened ? '#D461F1' : '#ACAEAD',
+                        margin: '5px'
+                    }}
+                    >{lead.email_opened ? 'Email Opened' : 'Email not opened'}</button>
+                    {lead.bounced && <button style={{backgroundColor: '#FD6565'}}>Bounced</button>}
+                    {(lead.contacted && !lead.email_opened) && <button style={{backgroundColor: '#ACD6FD'}}>Contacted</button>}
+                </Stack>
             </Grid>
             <Grid item xs={3.7}></Grid>
             <Grid item xs={2.3}>

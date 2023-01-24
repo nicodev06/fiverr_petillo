@@ -144,3 +144,7 @@ CORS_ALLOW_HEADERS = list(default_headers) + [
 ]
 
 BROKER_URL = 'django://'
+
+#celery -A backend worker --loglevel=INFO -P solo
+
+CELERY_IMPORTS = ("campaings.tasks")

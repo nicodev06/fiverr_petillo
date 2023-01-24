@@ -2,6 +2,11 @@ import os
 
 from celery import Celery
 
+import smtplib
+import email
+
+#from campaings.models import Campaign, Lead
+
 # Set the default Django settings module for the 'celery' program.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
 

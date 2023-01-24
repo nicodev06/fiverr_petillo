@@ -13,7 +13,7 @@ from .serializers import CampaignSerializer, LeadSerializer, CsvUploadSerializer
 from core.api.utils import EmailPagination 
 from .utils import LeadsPagination
 
-from ..tasks import send_mail
+from  ..tasks import send_mail
 
 class ListCreateCampaignAPIView(generics.ListCreateAPIView):
     queryset = Campaign.objects.all()
@@ -43,10 +43,12 @@ class RetrieveUpdateDestroyCampaignAPIView(generics.RetrieveUpdateDestroyAPIView
 
     def perform_update(self, serializer):
         serializer.save()
-        if serializer.validated_data['status'] == 'active':
-            campaign = Campaign.objects.get(id=self.kwargs['pk'])
-            tomorrow = datetime.datetime.utcnow() + timedelta(minutes=1)
-            send_mail.apply_async((), eta=tomorrow)
+        try:
+            if serializer.validated_data['status'] == 'active':
+                tomorrow = datetime.datetime.utcnow() + timedelta(seconds=10)
+                send_mail.apply_async((self.kwargs['pk'],), eta=tomorrow)
+        except KeyError:
+            pass
 
 class FilterCampaignsAPIView(generics.ListAPIView):
     queryset = Campaign.objects.all()
