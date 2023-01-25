@@ -55,9 +55,20 @@ class Sequence(models.Model):
     def __str__(self):
         return self.name
 
+class Template(models.Model):
+    name = models.CharField(max_length=124)
+    workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE, related_name='templates')
+    subject = models.TextField()
+    content = models.TextField()
+
+    def __str__(self):
+        return self.name
+
+
 class Variant(models.Model):
     name = models.CharField(max_length=1)
     sequence = models.ForeignKey(Sequence, on_delete=models.CASCADE, related_name='variants')
+    template = models.ForeignKey(Template, on_delete=models.SET_NULL, related_name='templates', blank=True, null=True)
 
     def __str__(self):
         return self.name

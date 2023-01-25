@@ -1,4 +1,5 @@
 import './App.css';
+import '../node_modules/react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 
 
 // Custom components
@@ -11,6 +12,9 @@ import LeadsPage from './components/features/campaigns/details/leads/LeadsPage';
 import SequencesPage from './components/features/campaigns/details/sequences/SequencesPage';
 import SettingsPage from './components/features/campaigns/details/settings/SettingsPage';
 import SchedulePage from './components/features/campaigns/details/schedule/SchedulePage';
+import TemplatesPage from './components/features/templates/TemplatePage';
+
+
 
 import {
   BrowserRouter, 
@@ -38,6 +42,7 @@ function App() {
                   <Route path='schedule' element={<SchedulePage/>}/>
                   <Route path='settings' element={<SettingsPage/>}/>
                 </Route>
+                <Route path='/template' element={<TemplatesPage/>}/>
               </Routes>
             </div>
           </BrowserRouter>
