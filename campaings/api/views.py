@@ -8,12 +8,12 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import FileUploadParser, MultiPartParser
 from core.models import Workspace, GenericSender
-from campaings.models import Campaign, Lead, Sequence, Variant
-from .serializers import CampaignSerializer, LeadSerializer, CsvUploadSerializer, SequenceSerializer, VariantSerializer
+from campaings.models import Campaign, Lead, Sequence, Variant, Template
+from .serializers import CampaignSerializer, LeadSerializer, CsvUploadSerializer, SequenceSerializer, VariantSerializer, TemplateSerializer
 from core.api.utils import EmailPagination 
 from .utils import LeadsPagination
 
-from  ..tasks import send_mail
+from  ..tasks import send_mail, send_test_email
 
 class ListCreateCampaignAPIView(generics.ListCreateAPIView):
     queryset = Campaign.objects.all()
@@ -274,3 +274,26 @@ def addSenderToCampaign(request, pk):
         return Response(status=status.HTTP_200_OK)
     except:
         return Response(status.status.HTTP_400_BAD_REQUEST)
+
+class CreateTemplateAPIView(generics.ListCreateAPIView):
+
+    queryset = Template.objects.all()
+    serializer_class = TemplateSerializer
+
+    def get_queryset(self):
+        workspace = Workspace.objects.get(user=self.request.user, is_active=True)
+        return Template.objects.filter(workspace=workspace)
+
+    def perform_create(self, serializer):
+        workspace = Workspace.objects.get(user=self.request.user, is_active=True)
+        serializer.save(workspace=workspace)
+
+@api_view(['POST'])
+def send_test_emails(request):
+    send_test_email.delay(request.data['subject'], request.data['content'], request.data['emails'])
+    return Response(status=status.HTTP_200_OK)
+
+
+class RetrieveUpdateDestroyTemplateAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Template.objects.all()
+    serializer_class = TemplateSerializer

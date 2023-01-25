@@ -18,5 +18,8 @@ urlpatterns = [
     path('variants/<int:pk>/', views.CreateVariantAPIView.as_view(), name='variants'),
     path('delete_variant/<int:pk>/', views.deleteVariantAPIView, name='delete variant'),
     path('update_waiting_time/<int:pk>/', views.updateWaitingTime, name='update waiting time'),
-    path('add_sender_to_campaign/<int:pk>/', views.addSenderToCampaign, name='add sender to campaign')
+    path('add_sender_to_campaign/<int:pk>/', views.addSenderToCampaign, name='add sender to campaign'),
+    path('template/', views.CreateTemplateAPIView.as_view(), name='template'),
+    path('test_template/', views.send_test_emails, name='test template'),
+    path('update_template/<int:pk>/', views.RetrieveUpdateDestroyTemplateAPIView.as_view(), name='update template')
 ]

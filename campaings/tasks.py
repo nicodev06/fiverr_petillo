@@ -1,6 +1,8 @@
 from backend import celery_app
 
 import email
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 import smtplib
 from datetime import datetime, timedelta, date
 
@@ -108,3 +110,21 @@ def send_mail(campaign_id):
         send_mail.apply_async((campaign_id,), eta=next_mail)
 
         smtp_server.quit()
+
+
+@celery_app.task
+def send_test_email(subject, content, emails):
+    emails = emails.split(',')
+    for address in emails:
+        msg = MIMEMultipart('alternative')
+        msg['Subject'] = subject
+        msg['From'] = 'teseonicolo@gmail.com'
+        msg['To'] = address
+        msg.attach(MIMEText(content, 'html'))
+
+        smtp_server = smtplib.SMTP('smtp.gmail.com')
+        smtp_server.starttls()
+
+        smtp_server.login('teseonicolo@gmail.com', 'tcigwtbcuoffkzwt')
+
+        smtp_server.send_message(msg)

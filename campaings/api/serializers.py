@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.utils.timezone import now
-from campaings.models import Campaign, Lead, Sequence, Variant
+from campaings.models import Campaign, Lead, Sequence, Variant, Template
 from core.api.serializers import BasicGenericSenderSerializer
 
 
@@ -44,3 +44,9 @@ class SequenceSerializer(serializers.ModelSerializer):
         read_only_fields = ['campaign', 'name', 'variants', 'waiting_time']
 
 
+class TemplateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Template
+        fields = '__all__'
+        read_only_fields = ['workspace', 'total_sent', 'total_replied']

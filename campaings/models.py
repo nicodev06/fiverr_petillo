@@ -56,10 +56,11 @@ class Sequence(models.Model):
         return self.name
 
 class Template(models.Model):
-    name = models.CharField(max_length=124)
     workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE, related_name='templates')
     subject = models.TextField()
     content = models.TextField()
+    total_sent = models.IntegerField(blank=True, default=0)
+    total_replied = models.IntegerField(blank=True, default=0)
 
     def __str__(self):
         return self.name
