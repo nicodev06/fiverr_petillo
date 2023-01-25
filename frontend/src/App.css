@@ -149,6 +149,7 @@ button:hover {
 /* width */
 ::-webkit-scrollbar {
   width: 4px;
+  height: 4px;
 }
 
 /* Track */
@@ -168,4 +169,10 @@ hr {
   background-color: #e9f5f9;
 }
 
+.last-one .add-variant {
+  background-color: #77ed91;
+}
 
+.not-last .add-variant {
+  background-color: var(--light-gray-color);
+}

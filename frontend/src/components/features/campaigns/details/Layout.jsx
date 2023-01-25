@@ -39,7 +39,7 @@ const Layout = () => {
   const [allowedDays, setAllowedDays] = useState([]);
 
 
-  function addSequence(){
+  function addSequence(template){
     fetch(`${process.env.REACT_APP_API_URL}/api/sequences/${campaign.id}/`, {
       method: 'POST',
       headers: {
@@ -56,7 +56,11 @@ const Layout = () => {
                 headers: {
                   'Content-Type': 'application/json',
                   'X-CSRFToken': 'hQBH9g5qKNjm75igWxv1kEFTZ2XkPJcy'
-                }
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                  template
+                })
               })
               .then((response) => {
                 if (response.status === 201){

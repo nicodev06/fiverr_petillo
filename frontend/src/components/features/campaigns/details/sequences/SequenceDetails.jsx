@@ -9,19 +9,40 @@ import VariantDetails from './VariantDetails';
 
 import { CampaignContext } from '../Layout'
 
+import BasicDialog from '../../../../BasicDialog';
+
+import Template from './Template';
+
+const AddVariantActivator = ({ handleClick }) => {
+  return (
+    <Box>
+      <button style={{backgroundColor: '#77ed91'}} onClick={handleClick}>+ Add variant</button>
+    </Box>
+  )
+}
+
+const AddSequenceActivator = ({ handleClick }) => {
+  return (
+    <button onClick={handleClick} className='add-variant'>+ Add Step</button>
+  )
+}
+
 const SequenceDetails = ({ sequence, i }) => {
 
-  const {campaign, sequences, setSequences, fetchSteps, addSequence } = useContext(CampaignContext);
+  const {campaign, sequences, fetchSteps, addSequence } = useContext(CampaignContext);
   const [waitingTime, setWaitingTime] = useState(sequence.waiting_time);
 
-  function addVariant(){
+  function addVariant(template){
     fetch(`${process.env.REACT_APP_API_URL}/api/variants/${sequence.id}/`, {
       method: 'POST',
       headers: {
           'Content-Type': 'application/json',
           'X-CSRFToken': 'hQBH9g5qKNjm75igWxv1kEFTZ2XkPJcy'
       },
-      credentials: 'include'
+      credentials: 'include',
+      body: JSON.stringify({
+        template
+      })
     })
       .then((response) => {
         if (response.status === 201){
@@ -65,12 +86,16 @@ const SequenceDetails = ({ sequence, i }) => {
           my: '2vh'
         }}
         >
-          <Box>
-            <button style={{backgroundColor: '#77ed91'}} onClick={addVariant}>+ Add variant</button>
-          </Box>
+              <BasicDialog Activator={AddVariantActivator}>
+                  <Template onSave={addVariant}/>
+              </BasicDialog>
           <Box>
           <Stack spacing={2} direction='row'>
-            <button style={{backgroundColor: sequences.length - 1 === i ? '#77ed91': 'var(--light-gray-color)'}} disabled={sequences.length - 1 !== i} onClick={addSequence}>+ Add Step</button>
+            <Box className={sequences.length - 1 === i ? 'last-one': 'not-last'}>
+              <BasicDialog Activator={AddSequenceActivator}>
+                <Template onSave={addSequence}/>
+              </BasicDialog>
+            </Box>
             <Stack spacing={0.5} direction='row' sx={{alignItems: 'center'}}>
               <Typography variant='subtitle2'>Wait</Typography>
               <form onSubmit={(e) => {updateWaitingTime(e)}}>

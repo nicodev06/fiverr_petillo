@@ -6,6 +6,18 @@ import { CampaignContext } from '../Layout'
 
 import SequenceDetails  from './SequenceDetails';
 
+import BasicDialog from '../../../../BasicDialog';
+
+import TemplatePage from './Template';
+
+const AddStepActivator = ({ handleClick }) => {
+  return (
+    <button style={{backgroundColor: '#77ed91'}} onClick={handleClick}>
+        + Add Step
+    </button>
+  )
+}
+
 const SequencesPage = () => {
   
   const {sequences, setSequence, addSequence} = useContext(CampaignContext);
@@ -20,9 +32,11 @@ const SequencesPage = () => {
     >
        
       {sequences.length === 0 && 
-      <button style={{backgroundColor: '#77ed91'}} onClick={addSequence}>
-        + Add Step
-      </button>}
+      <BasicDialog Activator={AddStepActivator}>
+          <TemplatePage onSave={addSequence}/>
+      </BasicDialog>
+      }
+
       {sequences.map((sequence, i) => <SequenceDetails sequence={sequence} i={i} key={sequence}/>)}
     </Box>
   )

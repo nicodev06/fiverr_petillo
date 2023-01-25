@@ -19,6 +19,7 @@ class Campaign(models.Model):
     email_per_sender = models.IntegerField(blank=True, null=True)
     today = models.DateField(blank=True, null=True)
     sended_today = models.IntegerField(blank=True, default=0)
+    completed = models.BooleanField(blank=True, default=False)
 
     def __str__(self):
         return self.name
@@ -49,7 +50,7 @@ class Lead(models.Model):
 class Sequence(models.Model):
     name = models.CharField(max_length=244)
     campaign = models.ForeignKey(Campaign, on_delete=models.CASCADE, related_name='sequences', null=True)
-    waiting_time = models.IntegerField(blank=True, null=True);
+    waiting_time = models.IntegerField(blank=True, default=0);
     current = models.BooleanField(blank=True, default=False)
 
     def __str__(self):

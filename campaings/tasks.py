@@ -5,9 +5,10 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import smtplib
 from datetime import datetime, timedelta, date
+import random
 
 
-from .models import Campaign, Lead
+from .models import Campaign, Lead, Sequence, Variant
 from core.models import GenericSender
 
 def get_sender(campaign):
@@ -29,9 +30,9 @@ def get_sender(campaign):
 def get_waiting_minutes(campaign, current_sender):
     sender = get_sender(campaign)
     if sender.pk != current_sender.pk:
-        return 0
-    if sender.sending_limits > campaign.waiting_time:
-        return sender.sending_limits
+        return campaign.waiting_time
+    if current_sender.sending_limits > campaign.waiting_time:
+        return current_sender.sending_limits
     else:
         return campaign.waiting_time
 
@@ -68,6 +69,40 @@ def update_campaign_daily_limits(campaign):
             return False
     return True
 
+def get_template(campaign):
+    leads = Lead.objects.filter(campaign=campaign, already_sended=False)
+    if leads.count() > 0:
+        print('LEAD COUNT IS NOT 0')
+        try:
+            sequence = Sequence.objects.get(campaign=campaign, current=True)
+            variant = random.choice(list(Variant.objects.filter(sequence=sequence)))
+            return variant.template
+        except Sequence.DoesNotExist:
+            print('Ancora errore')
+            new_sequence = Sequence.objects.filter(campaign=campaign)[0]
+            new_sequence.current = True
+            new_sequence.save()
+            sequence = Sequence.objects.get(campaign=campaign, current=True)
+            variant = random.choice(list(Variant.objects.filter(sequence=sequence)))
+            return variant.template
+    elif leads.count() == 0:
+        print('LEAD COUNT IS 0')
+        Lead.objects.filter(campaign=campaign).update(already_sended=False)
+        sequences = [sequence.name for sequence in list(Sequence.objects.filter(campaign=campaign).order_by('id'))]
+        current_sequence = Sequence.objects.get(campaign=campaign, current=True)
+        try:
+            new_sequence = Sequence.objects.get(campaign=campaign, name=sequences[sequences.index(current_sequence.name) + 1])
+            next_mail = datetime.utcnow() + timedelta(days=new_sequence.waiting_time)
+            send_mail.apply_async((campaign.id,), eta=next_mail)
+            return False
+        except KeyError:
+            campaign.completed = True
+            campaign.save()
+            return False
+
+
+
+
 @celery_app.task
 def send_mail(campaign_id):
     campaign = Campaign.objects.get(id=campaign_id)
@@ -77,18 +112,19 @@ def send_mail(campaign_id):
     leads = Lead.objects.filter(campaign=campaign, already_sended=False)
     sender = get_sender(campaign)
     update_sender_daily_limits(sender)
-    if leads.count() > 0:
+    template = get_template(campaign)
+    if template:
         if (campaign.sended_today >= campaign.daily_campaign) or (sender.sended_today >= sender.daily_campaign):
                 next_mail = datetime.utcnow() + timedelta(days=find_next_date(campaign))
                 send_mail.apply_async((campaign_id,), eta=next_mail)
                 return False
         lead = leads.first()
         if (not lead.replied) and lead.subscribe:
-            msg = email.message.EmailMessage()
-            msg['Subject'] = 'Test get sender'
+            msg = MIMEMultipart('alternative')
+            msg['Subject'] = template.subject
             msg['From'] = sender.email
             msg['To'] = lead.email
-            msg.set_content('Test get sender')
+            msg.attach(MIMEText(template.content, 'html'))
 
             smtp_server = smtplib.SMTP(sender.smtp_host)
             smtp_server.starttls()
@@ -110,6 +146,8 @@ def send_mail(campaign_id):
         send_mail.apply_async((campaign_id,), eta=next_mail)
 
         smtp_server.quit()
+    else:
+        return False
 
 
 @celery_app.task
