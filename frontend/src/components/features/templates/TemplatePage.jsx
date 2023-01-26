@@ -91,11 +91,13 @@ const TemplatePage = () => {
 
     
     return (
+    <>
     <TemplateContext>
       <Box
         sx={{
           mt: '5vh',
-          mx: '4vw'
+          mx: '6vw',
+          width: '70vw'
         }}
         >
           <Box
@@ -112,7 +114,7 @@ const TemplatePage = () => {
           <TemplateTable/>
         </Box>
     </TemplateContext>  
-
+    </>
     )
   }
   

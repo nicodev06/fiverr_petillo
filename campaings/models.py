@@ -40,10 +40,10 @@ class Lead(models.Model):
     email_opened = models.BooleanField(blank=True, default=False)
     replied = models.BooleanField(blank=True, default=False)
     subscribe = models.BooleanField(blank=True, default=True)
-    sended_by = models.ForeignKey(GenericSender, on_delete=models.CASCADE, related_name='leads', blank=True, null=True)
-    email_ids = models.JSONField(blank=True, default=[])
     already_sended = models.BooleanField(blank=True, default=False)
-
+    emails_sent = models.JSONField(blank=True, default=[])
+    sended_by = models.ForeignKey(GenericSender, on_delete=models.CASCADE, related_name='leads', blank=True, null=True)
+    
     def __str__(self):
         return self.email
 
@@ -71,6 +71,10 @@ class Variant(models.Model):
     name = models.CharField(max_length=1)
     sequence = models.ForeignKey(Sequence, on_delete=models.CASCADE, related_name='variants')
     template = models.ForeignKey(Template, on_delete=models.SET_NULL, related_name='templates', blank=True, null=True)
+    total_sent = models.IntegerField(blank=True, default=0)
+    total_replied = models.IntegerField(blank=True, default=0)
+    total_open = models.IntegerField(blank=True, default=0)
+
 
     def __str__(self):
         return self.name

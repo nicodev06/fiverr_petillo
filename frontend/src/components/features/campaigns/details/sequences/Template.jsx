@@ -17,7 +17,7 @@ const MainContext = ({ children }) => {
 
   useEffect(() => {
     fetchTemplates();
-  })
+  }, [])
 
   async function save(){
     if (object.length > 0){

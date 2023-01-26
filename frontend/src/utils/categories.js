@@ -25,7 +25,7 @@ export default [
         icon: <SendOutlinedIcon sx={{px: "15px"}}/>
     },
     {
-        path: "/inbox",
+        path: "/inbox/all",
         text: "Email Inbox",
         icon: <EmailOutlinedIcon sx={{px: "15px"}}/>
     },

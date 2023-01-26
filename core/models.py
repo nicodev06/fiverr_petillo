@@ -32,6 +32,7 @@ class GenericSender(models.Model):
     workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE, related_name="generic_senders", default=0)
     today = models.DateField(blank=True, null=True)
     sended_today = models.IntegerField(blank=True, default=True)
+    total_sent = models.IntegerField(blank=True, default=0)
 
     def __str__(self):
         return self.email

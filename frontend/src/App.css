@@ -176,3 +176,8 @@ hr {
 .not-last .add-variant {
   background-color: var(--light-gray-color);
 }
+
+.current-lead {
+  color: #0500FF !important;
+  box-shadow: inset 0.2rem 0em #0500FF;
+}

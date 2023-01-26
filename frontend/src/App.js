@@ -13,6 +13,7 @@ import SequencesPage from './components/features/campaigns/details/sequences/Seq
 import SettingsPage from './components/features/campaigns/details/settings/SettingsPage';
 import SchedulePage from './components/features/campaigns/details/schedule/SchedulePage';
 import TemplatesPage from './components/features/templates/TemplatePage';
+import InboxPage from './components/features/inbox/InboxPage';
 
 
 
@@ -35,6 +36,8 @@ function App() {
                 <Route path='/home'/>
                 <Route path='/email' element={<EmailPage/>}/>
                 <Route path='/campaigns' element={<CampaignPage/>}/>
+                <Route path='/template' element={<TemplatesPage/>}/>
+                <Route path='/inbox/:email' element={<InboxPage/>} />
                 <Route path='/campaigns/:id' element={<Layout/>}>
                   <Route path='insight'/>
                   <Route path='sequences' element={<SequencesPage/>}/>

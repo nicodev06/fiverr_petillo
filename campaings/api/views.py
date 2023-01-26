@@ -45,8 +45,12 @@ class RetrieveUpdateDestroyCampaignAPIView(generics.RetrieveUpdateDestroyAPIView
         serializer.save()
         try:
             if serializer.validated_data['status'] == 'active':
-                tomorrow = datetime.datetime.utcnow() + timedelta(seconds=10)
-                send_mail.apply_async((self.kwargs['pk'],), eta=tomorrow)
+                if 'start_date' in serializer.validated_data.keys():
+                    tomorrow = datetime.datetime.utcnow() + timedelta(seconds=10)
+                    send_mail.apply_async((self.kwargs['pk'],), eta=tomorrow)
+                else:
+                    tomorrow = datetime.datetime.utcnow() + timedelta(seconds=10)
+                    send_mail.apply_async((self.kwargs['pk'],), eta=tomorrow)
         except KeyError:
             pass
 
