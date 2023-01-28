@@ -401,6 +401,9 @@ def image_load(request, lead, variant):
     if not lead.email_opened:
         lead.email_opened = True
         lead.opening_date = date.today()
+        for msg in lead.emails_sent:
+            if msg['variant_id'] == variant.id:
+                msg['opening_date'] = datetime.now().strftime('%d %B')
         lead.save()
         variant.total_open += 1
         variant.save()
@@ -414,3 +417,98 @@ def unsubscribe_lead(request, pk):
     lead.subscribe = False
     lead.save()
     return render(request, 'index.html', {})
+
+
+def find_analytic(analytics, name):
+    for a in analytics:
+        if 'name' in a.keys():
+            if a['name'] == name:
+                return True
+    return False
+
+
+@api_view(['GET'])
+def count_analytics(request):
+    workspace = Workspace.objects.get(user=request.user, is_active=True)
+    if request.query_params.get('q') is not None:
+        leads = Lead.objects.filter(campaign=request.query_params.get('q'))
+    else:
+        leads = Lead.objects.filter(campaign__workspace=workspace)
+    analytics = []
+    for lead in leads:
+        try:
+            for msg in lead.emails_sent:
+                actions = msg.keys()
+                print(msg)
+                sended_status = find_analytic(analytics, msg['sending_date'])
+                if sended_status == True:
+                    for i in range(len(analytics)):
+                        if analytics[i]['name'] == msg['sending_date']:
+                            analytics[i]['sended'] += 1 
+                else:
+                    analytics.append({
+                        'name': msg['sending_date'],
+                        'sended': 1,
+                        'open': 0,
+                        'replied': 0
+                    })
+                if 'reply_date' in actions:
+                    replied_status = find_analytic(analytics, msg['reply_date'])
+                    if replied_status == True:
+                        for i in range(len(analytics)):
+                            if analytics[i]['name'] == msg['reply_date']:
+                                analytics[i]['replied'] += 1 
+                    else:
+                        analytics.append({
+                            'name': msg['reply_date'],
+                            'sended': 0,
+                            'open': 0,
+                            'replied': 1
+                        })
+                if 'opening_date' in actions:
+                    replied_status = find_analytic(analytics, msg['opening_date'])
+                    if replied_status == True:
+                        for i in range(len(analytics)):
+                            if analytics[i]['name'] == msg['opening_date']:
+                                analytics[i]['open'] += 1 
+                    else:
+                        analytics.append({
+                            'name': msg['opening_date'],
+                            'sended': 0,
+                            'open': 1,
+                            'replied': 0
+                        })
+        except KeyError:
+            pass
+    return Response(analytics, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+def RetrieveAllAnalytics(request):
+    if (request.query_params.get('q')):
+        campaign = Campaign.objects.get(pk=request.query_params.get('q'))
+        leads = Lead.objects.filter(campaign=campaign)
+        leads_count = leads.count()
+        bounced_count = Lead.objects.filter(campaign=campaign, bounced=True).count()
+        unsubscribed_count = Lead.objects.filter(campaign=campaign, subscribe=False).count()
+        completed_count = Lead.objects.filter(campaign=campaign, replied=True, email_opened=True).count()
+        return Response({'leads': leads_count, 'bounced': bounced_count, 'unsubscribe': unsubscribed_count, 'completed': completed_count}, status=status.HTTP_200_OK)
+
+    else:
+        workspace = Workspace.objects.get(user=request.user, is_active=True)
+        leads = Lead.objects.filter(campaign__workspace=workspace)
+        leads_count = leads.count()
+        bounced_count = Lead.objects.filter(campaign__workspace=workspace, bounced=True).count()
+        unsubscribed_count = Lead.objects.filter(campaign__workspace=workspace, subscribe=False).count()
+        completed_count = Lead.objects.filter(campaign__workspace=workspace, replied=True, email_opened=True).count()
+        campaigns = Campaign.objects.filter(workspace=workspace)
+        total_sent = 0
+        total_open = 0
+        total_replied = 0
+        for c in campaigns:
+            for sequence in c.sequences.all():
+                for variant in sequence.variants.all():
+                    total_open += variant.total_open
+                    total_sent += variant.total_sent
+                    total_replied += variant.total_replied
+        return Response({'leads': leads_count, 'bounced': bounced_count, 'unsubscribe': unsubscribed_count, 'completed': completed_count, 'sent': total_sent, 'open': total_open, 'replied': total_replied }, status=status.HTTP_200_OK)

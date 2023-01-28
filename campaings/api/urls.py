@@ -26,5 +26,7 @@ urlpatterns = [
     path('retrieve_replies/<int:pk>/', views.RetrieveReplies, name='retrieve replies'),
     path('send_mail_to_reply/<int:pk>/', views.send_mail_to_reply, name='send mail to reply'),
     path('add_open/<int:lead>/<int:variant>/', views.image_load, name='load image'),
-    path('unsubscribe/<int:pk>/', views.unsubscribe_lead, name='unsubscribe_lead')
+    path('unsubscribe/<int:pk>/', views.unsubscribe_lead, name='unsubscribe_lead'),
+    path('analytics/', views.count_analytics, name='count analytics'),
+    path('full_report/', views.RetrieveAllAnalytics, name='full report')
 ]

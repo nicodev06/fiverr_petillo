@@ -14,6 +14,8 @@ import SettingsPage from './components/features/campaigns/details/settings/Setti
 import SchedulePage from './components/features/campaigns/details/schedule/SchedulePage';
 import TemplatesPage from './components/features/templates/TemplatePage';
 import InboxPage from './components/features/inbox/InboxPage';
+import AnalyticsPage from './components/features/analytics/AnalyticsPage';
+import AnalyticsDetailPage from './components/features/campaigns/details/analytics/AnalyticsPage';
 
 
 
@@ -39,12 +41,13 @@ function App() {
                 <Route path='/template' element={<TemplatesPage/>}/>
                 <Route path='/inbox/:email' element={<InboxPage/>} />
                 <Route path='/campaigns/:id' element={<Layout/>}>
-                  <Route path='insight'/>
+                  <Route path='insight' element={<AnalyticsDetailPage/>}/>
                   <Route path='sequences' element={<SequencesPage/>}/>
                   <Route path='leads' element={<LeadsPage/>}/>
                   <Route path='schedule' element={<SchedulePage/>}/>
                   <Route path='settings' element={<SettingsPage/>}/>
                 </Route>
+                <Route path='/analytics' element={<AnalyticsPage/>}/>
                 <Route path='/template' element={<TemplatesPage/>}/>
               </Routes>
             </div>

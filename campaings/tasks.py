@@ -169,7 +169,8 @@ def send_mail(campaign_id):
                     'sender_id': sender.id,
                     'template_id': template.id,
                     'variant_id': variant.id,
-                    'subject': subject
+                    'subject': subject,
+                    'sending_date': datetime.now().strftime('%d %B')
                 })
                 lead.sended_by = sender
                 lead.save()
