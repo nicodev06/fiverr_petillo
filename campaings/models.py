@@ -44,6 +44,7 @@ class Lead(models.Model):
     already_sended = models.BooleanField(blank=True, default=False)
     emails_sent = models.JSONField(blank=True, default=[])
     sended_by = models.ForeignKey(GenericSender, on_delete=models.CASCADE, related_name='leads', blank=True, null=True)
+    opening_date = models.DateField(blank=True, null=True)
     
     def __str__(self):
         return self.email

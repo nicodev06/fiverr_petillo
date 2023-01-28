@@ -106,7 +106,8 @@ const Unsubscribe = ({unsubscribe, setUnsubscribe}) => {
       credentials: 'include',
       body: JSON.stringify({
           name: campaign.name,
-          unsubscribe_message: customMessage
+          unsubscribe_message: customMessage,
+          unsubscribe: true
       })
   })
       .then((response) => {

@@ -24,5 +24,7 @@ urlpatterns = [
     path('update_template/<int:pk>/', views.RetrieveUpdateDestroyTemplateAPIView.as_view(), name='update template'),
     path('leads_who_replied/', views.RetrieveLeadsWhoRepliedAPIView, name='leads who replied'),
     path('retrieve_replies/<int:pk>/', views.RetrieveReplies, name='retrieve replies'),
-    path('send_mail_to_reply/<int:pk>/', views.send_mail_to_reply, name='send mail to reply')
+    path('send_mail_to_reply/<int:pk>/', views.send_mail_to_reply, name='send mail to reply'),
+    path('add_open/<int:lead>/<int:variant>/', views.image_load, name='load image'),
+    path('unsubscribe/<int:pk>/', views.unsubscribe_lead, name='unsubscribe_lead')
 ]

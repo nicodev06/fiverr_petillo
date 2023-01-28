@@ -1,13 +1,16 @@
+from django.shortcuts import render
 import io
 import pandas
 from string import ascii_uppercase
 import datetime
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, date
 import imaplib
 import smtplib
 import email
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from PIL import Image
+from django.http import HttpResponse
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, parser_classes
@@ -51,10 +54,10 @@ class RetrieveUpdateDestroyCampaignAPIView(generics.RetrieveUpdateDestroyAPIView
         try:
             if serializer.validated_data['status'] == 'active':
                 if 'start_date' in serializer.validated_data.keys():
-                    tomorrow = datetime.datetime.utcnow() + timedelta(seconds=10)
+                    tomorrow = datetime.utcnow() + timedelta(seconds=10)
                     send_mail.apply_async((self.kwargs['pk'],), eta=tomorrow)
                 else:
-                    tomorrow = datetime.datetime.utcnow() + timedelta(seconds=10)
+                    tomorrow = datetime.utcnow() + timedelta(seconds=10)
                     send_mail.apply_async((self.kwargs['pk'],), eta=tomorrow)
         except KeyError:
             pass
@@ -369,7 +372,7 @@ def RetrieveReplies(request, pk):
                     messages.append({'date': message['date'][5:25], 'content': mail_content, 'status': 'received', 'subject': message['subject']})
         messages = messages[1:]
         messages.sort(key=lambda item: datetime.strptime(item['date'], "%d %b %Y %H:%M:%S"))
-        return Response(messages[::-1], status=status.HTTP_200_OK)
+        return Response(messages, status=status.HTTP_200_OK)
     except:
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -391,3 +394,23 @@ def send_mail_to_reply(request, pk):
         return Response(status=status.HTTP_200_OK)
     except:
         return Response(status=status.HTTP_400_BAD_REQUEST)
+
+def image_load(request, lead, variant):
+    lead = Lead.objects.get(pk=lead)
+    variant = Variant.objects.get(pk=variant)
+    if not lead.email_opened:
+        lead.email_opened = True
+        lead.opening_date = date.today()
+        lead.save()
+        variant.total_open += 1
+        variant.save()
+    red = Image.new('RGB', (1000, 1000))
+    response = HttpResponse(content_type="image/png")
+    red.save(response, "PNG")
+    return response
+
+def unsubscribe_lead(request, pk):
+    lead = Lead.objects.get(pk=pk)
+    lead.subscribe = False
+    lead.save()
+    return render(request, 'index.html', {})

@@ -9,15 +9,24 @@ class CampaignSerializer(serializers.ModelSerializer):
 
     days_since_creation = serializers.SerializerMethodField()
     total_replies = serializers.SerializerMethodField()
+    total_opens = serializers.SerializerMethodField()
     senders = BasicGenericSenderSerializer(many=True, read_only=True)
 
     class Meta:
         model = Campaign
-        fields = ['id', 'name', 'created_at', 'status', 'workspace', 'days_since_creation', 'senders', 'waiting_time', 'daily_campaign', 'unsubscribe', 'unsubscribe_message', 'leads_fields', 'track_openings', 'start_date', 'end_date', 'allowed_days', 'email_per_sender', 'total_replies']
+        fields = ['id', 'name', 'created_at', 'status', 'workspace', 'days_since_creation', 'senders', 'waiting_time', 'daily_campaign', 'unsubscribe', 'unsubscribe_message', 'leads_fields', 'track_openings', 'start_date', 'end_date', 'allowed_days', 'email_per_sender', 'total_replies', 'total_opens']
         read_only_fields = ['workspace', 'created_at', 'leads_fields', 'email_per_sender']
+        
 
     def get_days_since_creation(self, obj):
         return (now().date() - obj.created_at).days
+
+    def get_total_opens(self, obj):
+        total = 0
+        for sequence in obj.sequences.all():
+            for variant in sequence.variants.all():
+                total += variant.total_open
+        return total
     
     def get_total_replies(self, obj):
         total = 0

@@ -150,7 +150,12 @@ def send_mail(campaign_id):
                 msg['Subject'] = subject
                 msg['From'] = sender.email
                 msg['To'] = lead.email
-                msg.attach(MIMEText(merge_tags(campaign, lead, template.content), 'html'))
+                if campaign.unsubscribe:
+                    unsubscribe_message = campaign.unsubscribe_message or 'If you don  \'t want to receive such email in future, Unsubscribe here'
+                    unsubscribe_link = f'<a href="http://127.0.0.1:8000/api/unsubscribe/{lead.id}/">{unsubscribe_message}</a>'
+                    #image = f"\n\r<img src='http://127.0.0.1:8000/api/add_open/{lead.id}/{variant.id}/' height='0px' width='0px'/>\n\r"
+                    content = "\n\r" + merge_tags(campaign, lead, template.content) + unsubscribe_link
+                    msg.attach(MIMEText(content, 'html'))
 
                 smtp_server = smtplib.SMTP(sender.smtp_host)
                 smtp_server.starttls()
