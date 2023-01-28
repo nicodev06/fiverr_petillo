@@ -1,6 +1,7 @@
 from backend import celery_app
 
 import email
+import imaplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import smtplib
@@ -9,7 +10,7 @@ import random
 import chevron
 
 
-from .models import Campaign, Lead, Sequence, Variant
+from .models import Campaign, Lead, Sequence, Variant, Template
 from core.models import GenericSender
 
 def get_sender(campaign):
@@ -122,21 +123,26 @@ def merge_tags(campaign, lead, content):
 def send_mail(campaign_id):
     campaign = Campaign.objects.get(id=campaign_id)
     if campaign.status == 'active':
+        print('CAMPAIGN IS ACTIVE')
         status = update_campaign_daily_limits(campaign)
         if not status:
             return False
+        print('CAMPAIGN STATUS')
         leads = Lead.objects.filter(campaign=campaign, already_sended=False)
         sender = get_sender(campaign)
         update_sender_daily_limits(sender)
         variant = get_template(campaign)
         if variant == False:
             return False
+        print('VARIANT OK')
         template = variant.template
         if template:
+            print('TEMPLATE OK')
             if (campaign.sended_today >= campaign.daily_campaign) or (sender.sended_today >= sender.daily_campaign):
                     next_mail = datetime.utcnow() + timedelta(days=find_next_date(campaign))
                     send_mail.apply_async((campaign_id,), eta=next_mail)
                     return False
+            print('TIME OK')
             lead = leads.first()
             if (not lead.replied) and lead.subscribe:
                 subject = merge_tags(campaign, lead, template.subject) 
@@ -200,3 +206,48 @@ def send_test_email(subject, content, emails):
         smtp_server.login('teseonicolo@gmail.com', 'tcigwtbcuoffkzwt')
 
         smtp_server.send_message(msg)
+
+@celery_app.task
+def update_replies_count(campaign_id):
+    print('ENTERING FUNCTION')
+    campaign = Campaign.objects.get(id=campaign_id)
+    leads = Lead.objects.filter(campaign=campaign)
+    for lead in list(leads):
+        if len(lead.emails_sent) > 0:
+            print('EMAILS WERE SENT')
+            imap_server = imaplib.IMAP4_SSL(lead.sended_by.imap_host)
+            imap_server.login(lead.sended_by.email, lead.sended_by.imap_password)
+            imap_server.select('inbox')
+            for i in range(len(lead.emails_sent)):
+                message = lead.emails_sent[i]
+                subject = message['subject']
+                status, email_ids = imap_server.search(None,f'SUBJECT "{subject}"')
+                print(status)
+                email_ids = email_ids[0].split()
+                for email_id in email_ids:
+                    status, email_data = imap_server.fetch(email_id, "(RFC822)")
+                    for response_part in email_data:
+                        if isinstance(response_part, tuple):
+                            print('Faccio cose con la mail')
+                            msg = email.message_from_bytes(response_part[1])
+                            mail_from = msg['from']
+                            if len(mail_from.split('<')) > 1:
+                                mail_from = mail_from.split('<')[-1][:-1]
+                            print(mail_from)
+                            if mail_from == lead.email:
+                                if 'reply_date' not in message.keys():
+                                    lead.replied = True
+                                    lead.emails_sent[i]['reply'] = True
+                                    lead.emails_sent[i]['reply_date'] = msg['date'][5:11]
+                                    lead.save()
+                                    variant = Variant.objects.get(id=message['variant_id'])
+                                    template = Template.objects.get(id=message['template_id'])
+                                    variant.total_replied += 1
+                                    variant.save()
+                                    template.total_replied += 1
+                                    template.save()
+                                    print('setto tutto')
+    return 'Done all'
+
+                    
+

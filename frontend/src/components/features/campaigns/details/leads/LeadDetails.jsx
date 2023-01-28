@@ -63,7 +63,7 @@ const LeadDetails = ({ lead }) => {
                         backgroundColor: lead.replied ? '#77ED91' : '#ACAEAD',
                         margin: '5px'
                     }}
-                >{lead.email_opened ? 'Lead Replied' : 'Lead no Replied'}</button> 
+                >{lead.replied ? 'Lead Replied' : 'Lead no Replied'}</button> 
             </Grid>
         </Grid>
     </Box>

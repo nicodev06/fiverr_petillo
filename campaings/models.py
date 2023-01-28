@@ -39,6 +39,7 @@ class Lead(models.Model):
     bounced = models.BooleanField(blank=True, default=False)
     email_opened = models.BooleanField(blank=True, default=False)
     replied = models.BooleanField(blank=True, default=False)
+    reply_date = models.CharField(max_length=248, blank=True, null=True)
     subscribe = models.BooleanField(blank=True, default=True)
     already_sended = models.BooleanField(blank=True, default=False)
     emails_sent = models.JSONField(blank=True, default=[])

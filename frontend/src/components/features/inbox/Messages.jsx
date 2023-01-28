@@ -1,4 +1,4 @@
-import React, {useContext} from 'react'
+import React, {useContext, useState, useEffect} from 'react'
 
 import {Box, Stack, Typography, Grid, CircularProgress} from '@mui/material';
 
@@ -12,8 +12,36 @@ import {InboxContext} from './InboxPage';
 
 
 const SendButton = () => {
+
+    const {messages, editorContent, currentLead, setMessages} = useContext(InboxContext);
+
+    function sendMail(){
+        const mail = {};
+        mail.subject = messages[0].subject
+        mail.content = editorContent
+        mail.status = 'sended';
+        if (currentLead){
+            fetch(`${process.env.REACT_APP_API_URL}/api/send_mail_to_reply/${currentLead.id}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': 'hQBH9g5qKNjm75igWxv1kEFTZ2XkPJcy'
+                },
+                credentials: 'include',
+                body: JSON.stringify(mail)
+            })
+                .then((response) => {
+                    if (response.status === 200){
+                        setMessages([...messages, mail])
+                    }
+            })
+        }
+    }
+
     return (
-    <Box>
+    <Box
+    onClick={sendMail}
+    >
         <button style={{backgroundColor:'var(--light-blue-color)'}}>
             Send
         </button>
@@ -23,11 +51,23 @@ const SendButton = () => {
 
 
 const MessageEditor = () => {
+
+    const {editorContent, setEditorContent} = useContext(InboxContext);
+
+    const [editorState, setEditorState] = useState(
+        () => EditorState.createEmpty(),
+    );
+
+    useEffect(() => {
+        setEditorContent(editorState.getCurrentContent().getPlainText())
+    }, [editorState])
     return (
         <Box
         sx={{mt: '3vh'}}
         >
             <Editor
+            editorState={editorState}
+            onEditorStateChange={setEditorState}
             editorStyle={{backgroundColor: '#F3F3F3', borderRadius: '10px 10px 0px 0px'}}
             wrapperStyle={{display: 'flex', flexDirection: 'column-reverse'}}
             toolbar={{
@@ -41,24 +81,8 @@ const MessageEditor = () => {
 
 const Messages = () => {
 
-  const { show } = useContext(InboxContext);
 
-  if (show){
-    return (
-        <Box
-        sx={{
-            boxShadow: '0px 0px 1px var(--light-gray-color)',
-            borderRadius: '0px 10px 10px 0px',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '73vh'
-        }}
-        >
-            <CircularProgress/>
-        </Box>
-    )
-  }
+  const { messages, currentLead } = useContext(InboxContext);  
 
   return (
     <Box
@@ -83,64 +107,46 @@ const Messages = () => {
                     height: '40px'
                 }}
                 ></Box>
-                <Typography variant='subtitle1' sx={{fontWeight: 500}}>Kierracurtis@email.co</Typography>
+                <Typography variant='subtitle1' sx={{fontWeight: 500}}>{currentLead?.email}</Typography>
             </Stack>
             <SearchRoundedIcon/>
         </Box>
         <Stack
         sx={{
             mt: '3vh',
-            height: '50vh'
+            height: '50vh',
+            overflowY: 'scroll'
         }}
-        spacing={3}
+        spacing={2}
         >
-            <Grid container>
+            {messages.map((message) => 
+            <Grid container key={message}>
+                {message.status === 'sended' && (
+                    <Grid item xs={3.5}></Grid>
+                )}
                 <Grid item xs={8}>
                     <Box
                     sx={{
                         width: '100%',
                         display: 'flex',
-                        justifyContent: 'flex-start',
+                        justifyContent: message.status === 'sended' ? 'flex-end' : 'flex-start',
                         my: 1,
                         mx: 1
                     }}
                     >
                         <Box
                         sx={{
-                            backgroundColor: '#F3F3F3',
+                            backgroundColor: message.status === 'sended' ? '#717579' : '#F3F3F3',
                             color: '#000',
-                            borderRadius: '10px 10px 10px 0px'
+                            borderRadius: message.status === 'sended'? '10px 10px 0px 10px' : '10px 10px 10px 0px'
                         }}
                         >
-                            <Typography variant='subtitle2' sx={{p:1}}>Daje Roma sempre!</Typography>
+                            <Typography variant='subtitle2' sx={{p:1}}>{message.content}</Typography>
                         </Box>
                     </Box>
                 </Grid>
             </Grid>
-            <Grid container>
-                <Grid item xs={3.5}></Grid>
-                <Grid item xs={8}>
-                    <Box
-                    sx={{
-                        width: '100%',
-                        display: 'flex',
-                        justifyContent: 'flex-end',
-                        my: 1,
-                        mx: 1
-                    }}
-                    >
-                        <Box
-                        sx={{
-                            backgroundColor: '#717579',
-                            color: '#fff',
-                            borderRadius: '10px 10px 0px 10px'
-                        }}
-                        >
-                            <Typography variant='subtitle2' sx={{p:1}}>Daje Roma sempre!</Typography>
-                        </Box>
-                    </Box>
-                </Grid>
-            </Grid>
+            )}
         </Stack>
         <Box>
             <MessageEditor/>

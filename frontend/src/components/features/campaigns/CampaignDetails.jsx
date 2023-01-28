@@ -306,7 +306,7 @@ const CampaignDetails = ({ campaign }) => {
             <Grid item xs={1.3}>
                 <Stack direction='row' spacing={1}>
                     <ReplyRoundedIcon/>
-                    <Typography variant='subtitle2' sx={{fontSize: '0.8rem', color: 'var(--sky-blue-color)'}}>133</Typography>
+                    <Typography variant='subtitle2' sx={{fontSize: '0.8rem', color: 'var(--sky-blue-color)'}}>{campaign.total_replies}</Typography>
                 </Stack>
             </Grid>
             <Grid item xs={0.5}>

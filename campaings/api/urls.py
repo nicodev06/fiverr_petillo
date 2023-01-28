@@ -21,5 +21,8 @@ urlpatterns = [
     path('add_sender_to_campaign/<int:pk>/', views.addSenderToCampaign, name='add sender to campaign'),
     path('template/', views.CreateTemplateAPIView.as_view(), name='template'),
     path('test_template/', views.send_test_emails, name='test template'),
-    path('update_template/<int:pk>/', views.RetrieveUpdateDestroyTemplateAPIView.as_view(), name='update template')
+    path('update_template/<int:pk>/', views.RetrieveUpdateDestroyTemplateAPIView.as_view(), name='update template'),
+    path('leads_who_replied/', views.RetrieveLeadsWhoRepliedAPIView, name='leads who replied'),
+    path('retrieve_replies/<int:pk>/', views.RetrieveReplies, name='retrieve replies'),
+    path('send_mail_to_reply/<int:pk>/', views.send_mail_to_reply, name='send mail to reply')
 ]

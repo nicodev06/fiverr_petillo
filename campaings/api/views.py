@@ -2,7 +2,12 @@ import io
 import pandas
 from string import ascii_uppercase
 import datetime
-from datetime import timedelta
+from datetime import timedelta, datetime
+import imaplib
+import smtplib
+import email
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, parser_classes
@@ -301,3 +306,88 @@ def send_test_emails(request):
 class RetrieveUpdateDestroyTemplateAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Template.objects.all()
     serializer_class = TemplateSerializer
+
+@api_view(['GET'])
+def RetrieveLeadsWhoRepliedAPIView(request):
+    try:
+        workspace = Workspace.objects.get(user=request.user, is_active=True)
+        sended_by = request.query_params.get('q')
+        if sended_by:
+            sender = GenericSender.objects.get(id=sended_by)
+            leads = Lead.objects.filter(campaign__workspace=workspace, replied=True, sended_by=sender)
+            serializer = LeadSerializer(leads, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            leads = Lead.objects.filter(campaign__workspace=workspace, replied=True)
+            serializer = LeadSerializer(leads, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+    except:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+def RetrieveReplies(request, pk):
+    try:
+
+        lead = Lead.objects.get(pk=pk)
+        sender = lead.sended_by
+        subject = lead.emails_sent[0]['subject']
+        messages = []
+        imap_server = imaplib.IMAP4_SSL(sender.imap_host)
+        imap_server.login(sender.email, sender.imap_password)
+        imap_server.select('"[Gmail]/Posta inviata"')
+        s, email_ids = imap_server.search(None,f'SUBJECT "{subject}" TO "{lead.email}"')
+        email_ids = email_ids[0].split()
+        for email_id in email_ids:
+            s, email_data = imap_server.fetch(email_id, "(RFC822)")
+            for response_part in email_data:
+                if isinstance(response_part, tuple):
+                    message = email.message_from_bytes(response_part[1])
+                    if message.is_multipart():
+                        mail_content = ''
+                        for part in message.get_payload():
+                            if part.get_content_type() == 'text/plain':
+                                mail_content += part.get_payload()
+                    else:
+                        mail_content = message.get_payload()
+                    
+                    messages.append({'date': message['date'][5:25], 'content': mail_content, 'status': 'sended', 'subject': message['subject']})
+        imap_server.select('INBOX')
+        s, email_ids = imap_server.search(None,f'SUBJECT "{subject}" FROM "{lead.email}"')
+        email_ids = email_ids[0].split()
+        for email_id in email_ids:
+            s, email_data = imap_server.fetch(email_id, "(RFC822)")
+            for response_part in email_data:
+                if isinstance(response_part, tuple):
+                    message = email.message_from_bytes(response_part[1])
+                    if message.is_multipart():
+                        mail_content = ''
+                        for part in message.get_payload():
+                            if part.get_content_type() == 'text/plain':
+                                mail_content += part.get_payload()
+                    else:
+                        mail_content = message.get_payload()
+                    messages.append({'date': message['date'][5:25], 'content': mail_content, 'status': 'received', 'subject': message['subject']})
+        messages = messages[1:]
+        messages.sort(key=lambda item: datetime.strptime(item['date'], "%d %b %Y %H:%M:%S"))
+        return Response(messages[::-1], status=status.HTTP_200_OK)
+    except:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+def send_mail_to_reply(request, pk):
+    try:
+        lead = Lead.objects.get(pk=pk)
+        sender = lead.sended_by
+        smtp_server = smtplib.SMTP(sender.smtp_host)
+        msg = MIMEMultipart('alternative')
+        msg['Subject'] = request.data['subject']
+        msg['From'] = sender.email
+        msg['To'] = lead.email
+        msg.attach(MIMEText(request.data['content']))
+        smtp_server.starttls()
+        smtp_server.login(sender.email, sender.smtp_password)
+        smtp_server.send_message(msg)
+        return Response(status=status.HTTP_200_OK)
+    except:
+        return Response(status=status.HTTP_400_BAD_REQUEST)

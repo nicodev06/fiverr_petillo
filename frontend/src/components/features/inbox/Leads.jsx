@@ -7,14 +7,18 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 
 
 
-const LeadDetails = () => {
+const LeadDetails = ({ lead }) => {
+
+    const {currentLead, setCurrentLead} = useContext(InboxContext);
+
     return (
         <Box
         sx={{
             py: 1,
             px: 2
         }}
-        className='current-lead'
+        className={currentLead?.id === lead?.id ? 'current-lead' : 'none'}
+        onClick={() => {setCurrentLead(lead)}}
         >
             <Box
             sx={{
@@ -23,11 +27,7 @@ const LeadDetails = () => {
                 alignItems: 'center'
             }}
             >
-                <Typography variant='subtitle1'>Rayna Carder</Typography>
-                <Typography variant='subtitle2' sx={{color: 'var(--light-gray-color)'}}>2m ago</Typography>
-            </Box>
-            <Box>
-                <Typography variant='subtitle2' sx={{color: 'var(--light-gray-color)'}}>I remember that project due is tomorrow</Typography>
+                <Typography variant='subtitle1'>{`${lead?.first_name} ${lead?.last_name}`}</Typography>
             </Box>
         </Box>
     )
@@ -38,24 +38,7 @@ const LeadDetails = () => {
 const Leads = () => {
 
 
-    const { show } = useContext(InboxContext);
-
-    if (show){
-      return (
-          <Box
-          sx={{
-              boxShadow: '0px 0px 1px var(--light-gray-color)',
-              borderRadius: '0px 10px 10px 0px',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              height: '73vh'
-          }}
-          >
-              <CircularProgress/>
-          </Box>
-      )
-    }
+    const { show, leads } = useContext(InboxContext);
 
   return (
     <Box
@@ -66,7 +49,7 @@ const Leads = () => {
     >
         <Stack spacing={2} direction='row' sx={{p:2, alignItems: 'center'}}>
             <Typography variant='h6'>Inbox</Typography>
-            <Typography variant='subtitle1' sx={{color: 'var(--light-gray-color)'}}>(2,456)</Typography>
+            <Typography variant='subtitle1' sx={{color: 'var(--light-gray-color)'}}>{`(${leads.length})`}</Typography>
         </Stack>
         <Box
         sx={{
@@ -79,7 +62,7 @@ const Leads = () => {
             <MoreVertIcon/>
         </Box>
         <Stack>
-            <LeadDetails/>
+            {leads.map((lead) => <LeadDetails key={lead} lead={lead}/>)}
         </Stack>
     </Box>
   )
