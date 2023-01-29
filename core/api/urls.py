@@ -10,7 +10,15 @@ from .views import (getCurrentUser,
                     email_senders_count,
                     UpdateDestroyGenericSenderAPIView,
                     SearchGenericSenderAPIView,
-                    BasicGenericSenderListAPIView
+                    BasicGenericSenderListAPIView,
+                    UpdateCurrentUserAPIView,
+                    update_black_list,
+                    update_team,
+                    retrieve_team_members,
+                    delete_member,
+                    update_webhooks,
+                    retrieve_webhooks,
+                    delete_webhook
                     )
 
 urlpatterns = [
@@ -25,5 +33,13 @@ urlpatterns = [
     path('email_senders/', email_senders_count, name="email senders count"),
     path('toggle_sender/<int:pk>/', UpdateDestroyGenericSenderAPIView.as_view(), name="toggle sender"),
     path('sender_search/', SearchGenericSenderAPIView.as_view(), name='search sender'),
-    path('basic_sender/', BasicGenericSenderListAPIView.as_view(), name="basic sender")
+    path('basic_sender/', BasicGenericSenderListAPIView.as_view(), name="basic sender"),
+    path('update_current_user/<int:pk>/', UpdateCurrentUserAPIView.as_view(), name='update current user'),
+    path('update_blacklist/', update_black_list, name='update black list'),
+    path('update_team/', update_team, name='update team'),
+    path('team_members/', retrieve_team_members, name='team members'),
+    path('delete_member/', delete_member, name='delete member'),
+    path('update_webhooks/', update_webhooks),
+    path('delete_webhook/', delete_webhook),
+    path('retrieve_webhooks/', retrieve_webhooks)
 ]

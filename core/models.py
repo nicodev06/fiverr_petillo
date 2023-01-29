@@ -6,6 +6,9 @@ class Workspace(models.Model):
     name = models.CharField(max_length=248)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="workspaces")
     is_active = models.BooleanField(default=False)
+    blacklist = models.JSONField(blank=True, default=[])
+    team = models.JSONField(blank=True, default=[])
+    webhooks = models.JSONField(blank=True, default=[])
 
     def __str__(self):
         return self.name

@@ -13,7 +13,7 @@ from django.http import Http404
 from django.contrib.auth.models import AnonymousUser
 from .serializers import UserSerializer, WorkspaceSerializer, GenericSenderSerializer, BasicGenericSenderSerializer
 
-from core.models import GenericSender, Workspace
+from core.models import GenericSender, Workspace, User
 
 from .utils import verification, EmailPagination
 
@@ -144,4 +144,57 @@ class BasicGenericSenderListAPIView(generics.ListAPIView):
 
     def get_queryset(self):
         workspace = Workspace.objects.get(user=self.request.user, is_active=True)
-        return GenericSender.objects.filter(workspace=workspace).order_by('-id')  
+        return GenericSender.objects.filter(workspace=workspace).order_by('-id') 
+
+class UpdateCurrentUserAPIView(generics.RetrieveUpdateAPIView):
+    queryset = User.objects.all() 
+    serializer_class = UserSerializer
+
+@api_view(['PUT'])
+def update_black_list(request):
+    try:
+        workspace = Workspace.objects.get(user=request.user, is_active=True)
+        workspace.blacklist += request.data['blacklist']
+        workspace.save()
+        return Response(status=status.HTTP_200_OK)
+    except:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['PUT'])
+def update_team(request):
+    workspace = Workspace.objects.get(user=request.user, is_active=True)
+    workspace.team.append(request.data['member'])
+    workspace.save()
+    return Response(status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+def retrieve_team_members(request):
+    workspace = Workspace.objects.get(user=request.user, is_active=True)
+    return Response(workspace.team, status=status.HTTP_200_OK)
+
+@api_view(['PUT'])
+def delete_member(request):
+    workspace = Workspace.objects.get(user=request.user, is_active=True)
+    workspace.team = request.data
+    workspace.save()
+    return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['PUT'])
+def update_webhooks(request):
+    workspace = Workspace.objects.get(user=request.user, is_active=True)
+    workspace.webhooks.append(request.data['webhook'])
+    workspace.save()
+    return Response(status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+def retrieve_webhooks(request):
+    workspace = Workspace.objects.get(user=request.user, is_active=True)
+    return Response(workspace.webhooks, status=status.HTTP_200_OK)
+
+@api_view(['PUT'])
+def delete_webhook(request):
+    workspace = Workspace.objects.get(user=request.user, is_active=True)
+    workspace.webhooks = request.data
+    workspace.save()
+    return Response(status=status.HTTP_200_OK)
